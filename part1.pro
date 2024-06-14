@@ -1,0 +1,58 @@
+SOURCES   = mainwindow.cpp \
+            main.cpp \
+            screens/loginscreen.cpp \
+            screens/homescreen.cpp \
+            screens/productscreen.cpp \
+            screens/recargabilletera.cpp \
+            screens/historyscreen.cpp \
+            screens/configscreen.cpp \
+            screens/dialog/dialog.cpp \
+            screens/sale/animation/saleprogress.cpp \
+            screens/sale/error/saleerror.cpp \
+            screens/sale/success/salesuccess.cpp \
+            smartCard/AcsException.cpp \
+            smartCard/AcsHelper.cpp \
+            smartCard/AcsKeypad.cpp \
+            smartCard/AcsReader.cpp \    
+            smartCard/MifareClassic.cpp \    
+            
+            
+
+HEADERS   = mainwindow.h \
+            screens/loginscreen.h \
+            screens/sessionmanager.h \
+            screens/homescreen.h \
+            screens/productscreen.h \
+            screens/recargabilletera.h \
+            screens/historyscreen.h \
+            screens/configscreen.h \
+            screens/dialog/dialog.h \
+            screens/sale/animation/saleprogress.h \
+            screens/sale/error/saleerror.h \
+            screens/sale/success/salesuccess.h \
+            smartCard/AcsException.h \
+            smartCard/AcsHelper.h \
+            smartCard/AcsKeypad.h \
+            smartCard/AcsIncludes.h \
+            smartCard/AcsReader.h \
+            smartCard/MifareClassic.h \
+            /home/nesas-14/acr890_APIs_test/include/acs_api.h \
+            /home/nesas-14/acr890_APIs_test/include/acs_errno.h
+
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/tutorials/addressbook/part1
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS part1.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/tutorials/addressbook/part1
+INSTALLS += target sources
+
+QT +=  widgets network debug json
+RESOURCES += resources.qrc 
+
+
+symbian: include($$QT_SOURCE_TREE/examples/symbianpkgrules.pri)
+maemo5: include($$QT_SOURCE_TREE/examples/maemo5pkgrules.pri)
+
+symbian: warning(This example might not fully work on Symbian platform)
+maemo5: warning(This example might not fully work on Maemo platform)
+simulator: warning(This example might not fully work on Simulator platform)
