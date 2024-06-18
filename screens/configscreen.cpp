@@ -277,6 +277,7 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                 {
                     QString requestApdu = var.toString();
                     qDebug() << "Request APDU:" << requestApdu;
+                    // Implementar transmit aquí
                 }
             }
         }
