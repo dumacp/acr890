@@ -41,13 +41,18 @@ public:
 public slots:
     void runLed();
     void turnOffLed(); // Nuevo slot para apagar el LED
-    void closeReader();
     void piccReader();
     void handlePostNetworkReply(QNetworkReply *reply);
     void readWriteCard(const QString &atr, const QString &uuid);
 
+    // Format Data
+    QVariant parseJsonValue(const QString &jsonString);
+    QVariantMap parseJsonObject(const QString &jsonString);
+    QVariantList parseJsonArray(const QString &jsonString);
+
 private:
     MifareClassic cCard_;
+    QString cardData;
 };
 //! [class definition]
 

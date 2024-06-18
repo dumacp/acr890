@@ -228,8 +228,6 @@ void SaleProgress::handleCompleteTimer()
     // Convierte la cadena JSON en un mapa QVariant
     QVariantMap jsonData = parseJson(posData);
 
-    // Obtén la lista de productos
-
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 
@@ -331,7 +329,7 @@ void SaleProgress::handlePostNetworkReply(QNetworkReply *reply)
         QByteArray responseData = reply->readAll();
         qDebug() << "Response:" << responseData;
         emit progressDoneSuccess();
-        runPrinter(responseData);
+        //runPrinter(responseData);
     }
     else
     {

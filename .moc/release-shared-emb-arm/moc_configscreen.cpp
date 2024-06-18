@@ -22,7 +22,7 @@ static const uint qt_meta_data_ConfigScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,18 +33,23 @@ static const uint qt_meta_data_ConfigScreen[] = {
       14,   13,   13,   13, 0x0a,
       23,   13,   13,   13, 0x0a,
       36,   13,   13,   13, 0x0a,
-      50,   13,   13,   13, 0x0a,
-      69,   63,   13,   13, 0x0a,
-     117,  108,   13,   13, 0x0a,
+      55,   49,   13,   13, 0x0a,
+     103,   94,   13,   13, 0x0a,
+     154,  143,  134,   13, 0x0a,
+     190,  143,  178,   13, 0x0a,
+     228,  143,  215,   13, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ConfigScreen[] = {
     "ConfigScreen\0\0runLed()\0turnOffLed()\0"
-    "closeReader()\0piccReader()\0reply\0"
+    "piccReader()\0reply\0"
     "handlePostNetworkReply(QNetworkReply*)\0"
     "atr,uuid\0readWriteCard(QString,QString)\0"
+    "QVariant\0jsonString\0parseJsonValue(QString)\0"
+    "QVariantMap\0parseJsonObject(QString)\0"
+    "QVariantList\0parseJsonArray(QString)\0"
 };
 
 void ConfigScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -55,10 +60,15 @@ void ConfigScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         switch (_id) {
         case 0: _t->runLed(); break;
         case 1: _t->turnOffLed(); break;
-        case 2: _t->closeReader(); break;
-        case 3: _t->piccReader(); break;
-        case 4: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 5: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 2: _t->piccReader(); break;
+        case 3: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 4: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 5: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariant*>(_a[0]) = _r; }  break;
+        case 6: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
+        case 7: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = _r; }  break;
         default: ;
         }
     }
@@ -96,9 +106,9 @@ int ConfigScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 8;
     }
     return _id;
 }

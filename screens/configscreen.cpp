@@ -11,6 +11,13 @@
 #include <QTimer>
 #include <QUrl>
 #include <stdio.h>
+
+#include <QVariantMap>
+#include <QVariantList>
+#include <QByteArray>
+#include <QTextStream>
+#include <QRegExp>
+
 // #include <smartCard/AcsIncludes.h>
 
 // Session Manager - Singleton
@@ -165,7 +172,6 @@ ConfigScreen::ConfigScreen(QWidget *parent)
     setWindowState(windowState() ^ Qt::WindowFullScreen);
 
     connect(infoConfButton, SIGNAL(clicked()), this, SLOT(runLed()));
-    connect(trashConfButton, SIGNAL(clicked()), this, SLOT(closeReader()));
     connect(moneyConfButton, SIGNAL(clicked()), this, SLOT(piccReader()));
 }
 
@@ -253,6 +259,27 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
     {
         QByteArray responseData = reply->readAll();
         qDebug() << "Response:" << responseData;
+
+        cardData = QString(responseData);
+        QVariantMap cardDataMap = parseJsonObject(cardData);
+        if (cardDataMap.contains("nextStep"))
+        {
+            QVariantMap nextStep = cardDataMap["nextStep"].toMap();
+            if (nextStep.contains("step"))
+            {
+                QString stepNumber = nextStep["step"].toString();
+                qDebug() << "stepNumber" << stepNumber;
+            }
+            if (nextStep.contains("requestApdus"))
+            {
+                QVariantList requestApdus = nextStep["requestApdus"].toList();
+                foreach (QVariant var, requestApdus)
+                {
+                    QString requestApdu = var.toString();
+                    qDebug() << "Request APDU:" << requestApdu;
+                }
+            }
+        }
     }
     else
     {
@@ -319,13 +346,86 @@ void ConfigScreen::piccReader()
         QString uuid = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
 
         // Executar lectura-escritura FLEET
-        readWriteCard(atr, uuid);
+        readWriteCard(atr, uuid.toUpper());
     }
     picc_close();
 }
 
-void ConfigScreen::closeReader()
+QVariantMap ConfigScreen::parseJsonObject(const QString &jsonString)
 {
-    cCard_.closeReader();
-    qDebug() << "Cerrar lectora";
+    QVariantMap jsonMap;
+    QRegExp rx("\"([^\"]*)\"\\s*:\\s*([^,\\{\\}\\[\\]]+|\\{[^\\}]*\\}|\\[[^\\]]*\\])");
+    int pos = 0;
+
+    while ((pos = rx.indexIn(jsonString, pos)) != -1)
+    {
+        QString key = rx.cap(1);
+        QString value = rx.cap(2);
+
+        jsonMap[key] = parseJsonValue(value);
+
+        pos += rx.matchedLength();
+    }
+
+    return jsonMap;
+}
+
+QVariant ConfigScreen::parseJsonValue(const QString &jsonString)
+{
+    if (jsonString.startsWith('{'))
+    {
+        return parseJsonObject(jsonString);
+    }
+    else if (jsonString.startsWith('['))
+    {
+        return parseJsonArray(jsonString);
+    }
+    else if (jsonString == "true")
+    {
+        return true;
+    }
+    else if (jsonString == "false")
+    {
+        return false;
+    }
+    else if (jsonString == "null")
+    {
+        return QVariant();
+    }
+    else if (jsonString.startsWith('"'))
+    {
+        return jsonString.mid(1, jsonString.length() - 2); // Remove quotes
+    }
+    else
+    {
+        bool ok;
+        int intValue = jsonString.toInt(&ok);
+        if (ok)
+        {
+            return intValue;
+        }
+        double doubleValue = jsonString.toDouble(&ok);
+        if (ok)
+        {
+            return doubleValue;
+        }
+    }
+    return jsonString; // As fallback
+}
+
+QVariantList ConfigScreen::parseJsonArray(const QString &jsonString)
+{
+    QVariantList jsonArray;
+    QRegExp rx("([^,\\[\\]\\{\\}]+|\\{[^\\}]*\\}|\\[[^\\]]*\\])");
+    int pos = 1; // Skip the initial '['
+
+    while ((pos = rx.indexIn(jsonString, pos)) != -1)
+    {
+        QString value = rx.cap(1);
+        jsonArray.append(parseJsonValue(value));
+
+        pos += rx.matchedLength();
+    }
+
+    return jsonArray;
 }
