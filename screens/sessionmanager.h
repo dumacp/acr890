@@ -30,6 +30,12 @@ public:
     void setPointOfSaleData(const QByteArray &data) { pointOfSaleData = data; }
     QByteArray getPointOfSaleData() const { return pointOfSaleData; }
 
+    void setPosId(const QString &posId) { currentPosId = posId; }
+    QString getPosId() const { return currentPosId; }
+
+    void setCurrentAccessToken(const QString &accessToken) { currentAccessToken = accessToken; }
+    QString getCurrentAccessToken() const { return currentAccessToken; }
+
 private:
     SessionManager() {}
     QString jwtToken;
@@ -37,6 +43,8 @@ private:
     QString userDocument;
     int currentUnitPrice;
     QByteArray pointOfSaleData;
+    QString currentAccessToken;
+    QString currentPosId;
 
     // Disable copy and assignment
     SessionManager(const SessionManager &);

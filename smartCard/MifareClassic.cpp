@@ -34,10 +34,10 @@ void MifareClassic::closeReader()
 void MifareClassic::connect()
 {
     _iReaderResponse = _cReader.powerOn(READER_PICC, _aCardResponse, &_uCardResponseLength);
-    printf("Response: ");
+    printf("ATR: ");
     for (size_t i = 0; i < _uCardResponseLength; i++)
     {
-        printf(" %x ", _aCardResponse[i]);
+        printf(" %x ", _aCardResponse[i]); // Get ATR
     }
     printf("\n");
 

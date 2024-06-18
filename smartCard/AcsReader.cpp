@@ -225,7 +225,16 @@ int AcsReader::poll(enum CARD_READER eCardReader, uint8_t uPollType)
         case 1:
             iResponse = picc_poll_card(&piccCard);
             if (iResponse)
-                return 1;
+            {
+                qDebug() << "iResponse" << iResponse;
+                /* printf("Response: ");
+                for (size_t i = 0; i < _uCardResponseLength; i++)
+                {
+                    printf(" %x ", _aCardResponse[i]); // Get ATR
+                }
+                printf("\n"); */
+            }
+
             break;
         }
 

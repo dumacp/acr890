@@ -13,13 +13,25 @@
 #include <stdio.h>
 // #include <smartCard/AcsIncludes.h>
 
-/* extern "C"
+// Session Manager - Singleton
+#include "sessionmanager.h"
+
+// String build
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+extern "C"
 {
 #include <acs_api.h>
 #include <acs_errno.h>
 #include <acs_ioctl.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 }
- */
+
 ConfigScreen::ConfigScreen(QWidget *parent)
     : QWidget(parent)
 {
@@ -153,8 +165,8 @@ ConfigScreen::ConfigScreen(QWidget *parent)
     setWindowState(windowState() ^ Qt::WindowFullScreen);
 
     connect(infoConfButton, SIGNAL(clicked()), this, SLOT(runLed()));
-    connect(calendarConfigButton, SIGNAL(clicked()), this, SLOT(startReader()));
     connect(trashConfButton, SIGNAL(clicked()), this, SLOT(closeReader()));
+    connect(moneyConfButton, SIGNAL(clicked()), this, SLOT(piccReader()));
 }
 
 void ConfigScreen::runLed()
@@ -186,100 +198,132 @@ void ConfigScreen::turnOffLed()
     }
 }
 
-void ConfigScreen::startReader()
+void ConfigScreen::readWriteCard(const QString &atr, const QString &uuid)
 {
-    cCard_.openReader();
-    qDebug() << "Abrir lectora";
+    // Crear el manager de la red
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 
-    try
-    {
-        cCard_.connect();
-        if (cCard_._eCardType == CARD_TYPE_MIFARE_1K)
-            qDebug() << "Connected to Mifare 1K";
-        else if (cCard_._eCardType == CARD_TYPE_MIFARE_PLUS)
-            qDebug() << "Connected to CARD_TYPE_MIFARE_PLUS";
-        else if (cCard_._eCardType == CARD_TYPE_MIFARE_4K)
-            qDebug() << "Connected to Mifare 4K";
+    // Conectar la señal de respuesta usando la sintaxis antigua
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReply(QNetworkReply *)));
 
-        else
-            qDebug() << "Connected to unknown card";
-    }
-    catch (AcsException cExpection)
-    {
+    // Obtener el accessToken actual
+    QString accessToken = SessionManager::instance().getCurrentAccessToken();
 
-        qDebug() << "cExpection" << cExpection.sMessage;
-    }
-    catch (...)
-    {
-        qDebug() << "cExpection.sMessage";
-    }
+    // Crear la solicitud HTTP
+    QNetworkRequest request;
+    request.setUrl(QUrl("https://fleet.nebulae.com.co/api/external-network-gateway/rest/paymentMedium/applyPendingMods"));
+    request.setRawHeader("accept", "application/json"); // Especificar el tipo de contenido como JSON
+    request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
+    request.setRawHeader("Content-Type", "application/json"); // Especificar el tipo de contenido como JSON
+
+    // Crear el cuerpo de la solicitud utilizando variables
+    QString atrPos = atr;                                          // ATR
+    QString uuidPos = uuid;                                        // UUID
+    QString pointOfSaleId = SessionManager::instance().getPosId(); // ID del punto de venta
+    QString terminalKey = "001466";
+
+    QString jsonString = QString(
+                             "{"
+                             "\"atr\": \"%1\","
+                             "\"uuid\": \"%2\","
+                             "\"metadata\": {"
+                             "\"pointOfSaleId\": \"%3\","
+                             "\"terminalKey\": \"%4\""
+                             "}"
+                             "}")
+                             .arg(atrPos)
+                             .arg(uuidPos)
+                             .arg(pointOfSaleId)
+                             .arg(terminalKey);
+
+    QByteArray postData = jsonString.toUtf8();
+
+    qDebug() << "atr" << atrPos;
+    qDebug() << "uuid" << uuidPos;
+    qDebug() << "pointOfSaleId" << pointOfSaleId;
+    qDebug() << "terminalKey" << terminalKey;
+
+    // Enviar la solicitud POST
+    manager->post(request, postData);
 }
 
-/* void ConfigScreen::readData()
+void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
 {
-    char *pData = new char[16];
-    bool bNumeric = false;
-
-    try
+    if (reply->error() == QNetworkReply::NoError)
     {
-
-        ui->lineEditDataBlockNumber->text().toInt(&bNumeric);
-        if (!bNumeric || ui->lineEditDataBlockNumber->text().toInt() < 0)
-        {
-            ui->labelStatus->setText("Invalid block number");
-            return;
-        }
-
-        if (cCard_._eCardType == CARD_TYPE_MIFARE_1K)
-        {
-            if (0 > 63)
-            {
-                qDebug() << "La tarjeta no tiene el bloque: " << 0;
-                return;
-            }
-        }
-        else
-        {
-            if (0 > 255)
-            {
-                qDebug() << "La tarjeta no tiene el bloque: " << 0;
-                return;
-            }
-        }
-
-        if (!bNumeric || 16 < 0 || (16 % 16) != 0)
-        {
-            qDebug() << "Invalid data length";
-            return;
-        }
-
-        cCard_.readBlock(0, 16, pData);
-
-        ui->textEditData->setText(QString::fromUtf8(pData).remove(ui->lineEditDataLength->text().toInt(), 8));
-
-        if (pData != NULL)
-            delete pData;
-
-        qDebug() << "Lectura de bloque completado";
+        QByteArray responseData = reply->readAll();
+        qDebug() << "Response:" << responseData;
     }
-    catch (AcsException cException)
+    else
     {
-        if (pData != NULL)
-            delete pData;
-
-        char *pMessage = new char[cException.sMessage.length() + 10];
-        sprintf(pMessage, "%02X %02X - %s", cException.aStatusWord[0], cException.aStatusWord[1], cException.sMessage.toUtf8().constData());
-        delete pMessage;
+        qDebug() << "Error en la solicitud:" << reply->errorString();
+        QByteArray errorData = reply->readAll();
+        qDebug() << "Detalle del error:" << errorData;
     }
-    catch (...)
-    {
-        if (pData != NULL)
-            delete pData;
-
-        qDebug() << "Fallo al leer el bloque";
-    }
+    // Liberar la memoria del objeto QNetworkReply
+    reply->deleteLater();
 }
- */
+
+void ConfigScreen::piccReader()
+{
+    int picc_rtn;
+    int rtn;
+    int i;
+    char uid_buf[10];
+    unsigned char atr[64];
+    unsigned char atr_len;
+
+    struct picc_card picc_card_info;
+    char picc_uid_str[64];
+
+    picc_rtn = picc_open();
+    if (picc_rtn == 0)
+        printf("picc_open successful!\n");
+    else
+        printf("picc_open failed!\n");
+
+    memset(atr, 0, sizeof(atr));
+    rtn = picc_power_on(atr, &atr_len);
+    if (rtn == 0)
+    {
+        // Crear un stringstream para construir la cadena ATR Y UUID
+        std::stringstream atrValue;
+        std::stringstream uuidValue;
+
+        printf("ATR = ");
+        for (i = 0; i < atr_len; i++)
+        {
+            printf("0x%02x ", atr[i]);
+            atrValue << std::hex << std::setw(2) << std::setfill('0') << (int)atr[i]; // Almacenar cada elemento del array atr[] como un unico string - Así obtenemos el ATR
+        }
+        printf("\n");
+
+        memset(picc_uid_str, 0, sizeof(picc_uid_str));
+        rtn = picc_poll_card(&picc_card_info);
+        printf("UID = ");
+        for (i = 0; i < picc_card_info.uidlength; i++)
+        {
+            printf("0x%02x ", picc_card_info.uid[i]);                                                 // Almacenar cada elemento del array picc_card_info.uid[] como un unico string - Así obtenemos el UID
+            uuidValue << std::hex << std::setw(2) << std::setfill('0') << (int)picc_card_info.uid[i]; // Almacenar cada elemento del array picc_card_info.uid[] como un unico string - Así obtenemos el UUID
+            sprintf(uid_buf, "0x%02x ", picc_card_info.uid[i]);
+            strcat(picc_uid_str, uid_buf);
+        }
+        printf("\n");
+
+        // Almacenar el atrValue y uuidValue
+        std::string atrStd = atrValue.str();
+        std::string uuidStd = uuidValue.str();
+
+        // Convertir std::string a QString usando fromUtf8
+        QString atr = QString::fromUtf8(atrStd.c_str(), atrStd.length());
+        QString uuid = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
+
+        // Executar lectura-escritura FLEET
+        readWriteCard(atr, uuid);
+    }
+    picc_close();
+}
+
 void ConfigScreen::closeReader()
 {
     cCard_.closeReader();

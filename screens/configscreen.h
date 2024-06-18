@@ -16,9 +16,14 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+
 // standard
 #include <stdint-gcc.h>
 #include <stdint.h>
+
+// Net
+#include <QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
 
 #include "../smartCard/MifareClassic.h"
 #include "../smartCard/AcsHelper.h"
@@ -36,8 +41,10 @@ public:
 public slots:
     void runLed();
     void turnOffLed(); // Nuevo slot para apagar el LED
-    void startReader();
     void closeReader();
+    void piccReader();
+    void handlePostNetworkReply(QNetworkReply *reply);
+    void readWriteCard(const QString &atr, const QString &uuid);
 
 private:
     MifareClassic cCard_;

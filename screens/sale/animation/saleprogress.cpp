@@ -163,6 +163,7 @@ void SaleProgress::handleCompleteTimer()
     // Convertir jwtToken a un objeto JSON utilizando stringToJson
     QVariantMap jwtTokenJson = stringToJson(jwtToken);
     QString accessToken = jwtTokenJson.value("access_token").toString();
+    SessionManager::instance().setCurrentAccessToken(accessToken);
 
     // Verificar si existe la llave "products"
     QVariantList pointOfSaleDataList = parseJsonArray(posData);
@@ -173,7 +174,10 @@ void SaleProgress::handleCompleteTimer()
         QVariantMap pointOfSaleData = pointOfSaleDataList.first().toMap();
 
         if (pointOfSaleData.contains("id"))
+        {
             posId = pointOfSaleData.value("id").toString();
+            SessionManager::instance().setPosId(posId);
+        }
 
         // Verificar si existe la llave "products"
         if (pointOfSaleData.contains("products"))
