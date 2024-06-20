@@ -364,8 +364,8 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
 
     QByteArray commandArray = QByteArray::fromHex(pCommand);
 
-    qDebug() << "commandArray: " << QString::fromLatin1(commandArray);
-    printDebug(commandArray);
+    // qDebug() << "commandArray: " << QString::fromLatin1(commandArray);
+    // printDebug(commandArray);
 
     switch (eCardReader)
     {
@@ -412,4 +412,13 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
     default:
         return 255;
     }
+}
+
+ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
+{
+    ParsedApduResponse parsedResponse;
+    parsedResponse.requestApdu = apdu;
+    parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
+    parsedResponse.responseApdu = QString("%1").arg(apduResponse.statusWord, 4, 16, QLatin1Char('0')).toUpper();
+    return parsedResponse;
 }

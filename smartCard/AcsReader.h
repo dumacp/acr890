@@ -12,6 +12,11 @@
 
 #include "AcsIncludes.h"
 #include <vector>
+#include <sstream> // Para std::stringstream
+#include <iomanip> // Para std::hex y std::setfill
+#include <QString>
+#include <QDebug>
+#include <stdint.h>
 
 enum RETURN_STATUS
 {
@@ -63,6 +68,13 @@ struct ApduResponse
     uint16_t statusWord;
 };
 
+struct ParsedApduResponse
+{
+    QString requestApdu;
+    bool isValid;
+    QString responseApdu;
+};
+
 class AcsReader
 {
 
@@ -81,6 +93,7 @@ public:
     uint8_t statusPicc();
 
     ApduResponse parseResponse(char *response, uint8_t responseLength);
+    ParsedApduResponse convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu);
 
 private:
     uint8_t uStatusIcc;
