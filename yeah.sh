@@ -16,7 +16,7 @@ make clean && make
 if [ -f "part1" ]; then
 	mv part1 screens_app
 	# Copia el archivo "screens_app" a la ubicación deseada en el datafono
-	sshpass -p uno.2.tres scp screens_app root@192.168.186.102:~/dev/tests
+	sshpass -p uno.2.tres scp screens_app root@192.168.186.122:~/dev/tests
 else
 	echo "No se pudo encontrar el archivo, ejecuta nuevamente el script"
 fi

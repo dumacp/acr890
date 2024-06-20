@@ -28,6 +28,12 @@
 #include <sstream>
 #include <iomanip>
 
+// Custom Transmit
+AcsReader _cReaderConfigScreen;
+
+#include <QtCore/QVector>
+#include <QtCore/QList>
+
 extern "C"
 {
 #include <acs_api.h>
@@ -278,6 +284,37 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                     QString requestApdu = var.toString();
                     qDebug() << "Request APDU:" << requestApdu;
                     // Implementar transmit aquí
+
+                    QByteArray commandTransform = requestApdu.toLatin1();
+                    char *command = commandTransform.data();
+
+                    qDebug() << "command" << command;
+
+                    uint8_t commandLength = static_cast<uint8_t>(sizeof(command));
+                    /* uint8_t commandLength = sizeof(command); */
+
+                    char response[256];
+                    uint8_t responseLength = 0;
+                    CARD_READER cardReaderType = READER_PICC;
+
+                    int status = _cReaderConfigScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
+                    qDebug() << "status" << status;
+
+                    if (status != 0)
+                    {
+                        qDebug() << "Error en la transmisión:" << status;
+                        // Manejar el error sin usar return
+                        continue;
+                    }
+
+                    ApduResponse apduResponse = _cReaderConfigScreen.parseResponse(response, responseLength);
+
+                    /*    qDebug() << "Data:";
+                       for (size_t i = 0; i < apduResponse.data.size(); ++i)
+                       {
+                           qDebug() << hex << static_cast<int>(apduResponse.data[i]) << " ";
+                       } */
+                    qDebug() << "\nStatus Word:" << hex << apduResponse.statusWord;
                 }
             }
         }
@@ -349,7 +386,7 @@ void ConfigScreen::piccReader()
         // Executar lectura-escritura FLEET
         readWriteCard(atr, uuid.toUpper());
     }
-    picc_close();
+    // picc_close();
 }
 
 QVariantMap ConfigScreen::parseJsonObject(const QString &jsonString)

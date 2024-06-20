@@ -27,6 +27,7 @@
 
 #include "../smartCard/MifareClassic.h"
 #include "../smartCard/AcsHelper.h"
+#include "../smartCard/AcsReader.h"
 #include "../smartCard/AcsException.h"
 
 //! [class definition]

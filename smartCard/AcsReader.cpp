@@ -329,3 +329,87 @@ uint8_t AcsReader::statusPicc()
 {
     return uStatusPicc;
 }
+
+ApduResponse AcsReader::parseResponse(char *response, uint8_t responseLength)
+{
+    ApduResponse apduResponse;
+    if (responseLength >= 2)
+    {
+        apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
+        apduResponse.data.assign(response, response + responseLength - 2);
+    }
+    else
+    {
+        apduResponse.statusWord = 0;
+        apduResponse.data.clear();
+    }
+    return apduResponse;
+}
+
+void AcsReader::printDebug(const QByteArray &data)
+{
+    qDebug() << "Debug:" << data.toHex();
+}
+
+void AcsReader::printDebugLong(const QByteArray &data)
+{
+    qDebug() << "Debug Long:" << data.toHex();
+}
+
+int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t commandLength, char *pResponse, uint8_t *responseLength)
+{
+    int iResponse = 0;
+    unsigned long uLongResponseLength = 0;
+    unsigned int uIntResponseLength = 0;
+
+    QByteArray commandArray = QByteArray::fromHex(pCommand);
+
+    qDebug() << "commandArray: " << QString::fromLatin1(commandArray);
+    printDebug(commandArray);
+
+    switch (eCardReader)
+    {
+    case READER_PICC:
+        iResponse = picc_transmit(reinterpret_cast<unsigned char *>(const_cast<char *>(commandArray.data())), commandArray.size(), reinterpret_cast<unsigned char *>(pResponse), &uLongResponseLength);
+        printDebugLong(QByteArray(pResponse, uLongResponseLength));
+
+        if (iResponse)
+            return iResponse;
+
+        *responseLength = static_cast<uint8_t>(uLongResponseLength);
+        return 0;
+
+    case READER_ICC:
+        iResponse = icc_apdu_transmit(ICC_SLOT_ID_0, reinterpret_cast<unsigned char *>(const_cast<char *>(commandArray.data())), commandArray.size(), reinterpret_cast<unsigned char *>(pResponse), &uIntResponseLength);
+        printDebug(QByteArray(pResponse, uIntResponseLength));
+
+        if (iResponse)
+            return iResponse;
+
+        *responseLength = static_cast<uint8_t>(uIntResponseLength);
+        return 0;
+
+    case READER_ICC_SAM1:
+        iResponse = icc_apdu_transmit(SAM_SLOT_ID_1, reinterpret_cast<unsigned char *>(const_cast<char *>(commandArray.data())), commandArray.size(), reinterpret_cast<unsigned char *>(pResponse), &uIntResponseLength);
+        printDebug(QByteArray(pResponse, uIntResponseLength));
+
+        if (iResponse)
+            return iResponse;
+
+        *responseLength = static_cast<uint8_t>(uIntResponseLength);
+        return 0;
+
+    case READER_ICC_SAM2:
+        iResponse = icc_apdu_transmit(SAM_SLOT_ID_2, reinterpret_cast<unsigned char *>(const_cast<char *>(commandArray.data())), commandArray.size(), reinterpret_cast<unsigned char *>(pResponse), &uIntResponseLength);
+        printDebug(QByteArray(pResponse, uIntResponseLength));
+
+        if (iResponse)
+            return iResponse;
+
+        *responseLength = static_cast<uint8_t>(uIntResponseLength);
+        return 0;
+
+    default:
+        return 255;
+    }
+}

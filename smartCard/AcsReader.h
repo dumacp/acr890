@@ -11,6 +11,7 @@
 #define ACSREADER_H
 
 #include "AcsIncludes.h"
+#include <vector>
 
 enum RETURN_STATUS
 {
@@ -56,6 +57,12 @@ enum CARD_READER
     READER_ICC_SAM2 = 0x08
 };
 
+struct ApduResponse
+{
+    std::vector<uint8_t> data;
+    uint16_t statusWord;
+};
+
 class AcsReader
 {
 
@@ -63,6 +70,7 @@ public:
     AcsReader();
     ~AcsReader();
 
+    int customTransmit(CARD_READER eCardReader, char *pCmd, uint8_t uCmdLen, char *pResp, uint8_t *uRespLen);
     int transmit(CARD_READER eCardReader, char *pCmd, uint8_t uCmdLen, char *pResp, uint8_t *uRespLen);
     int open(enum CARD_READER eCardReader);
     int close(enum CARD_READER eCardReader);
@@ -72,9 +80,14 @@ public:
     uint8_t statusIcc();
     uint8_t statusPicc();
 
+    ApduResponse parseResponse(char *response, uint8_t responseLength);
+
 private:
     uint8_t uStatusIcc;
     uint8_t uStatusPicc;
+
+    void printDebug(const QByteArray &data);
+    void printDebugLong(const QByteArray &data);
 };
 
 #endif // ACSREADER_H
