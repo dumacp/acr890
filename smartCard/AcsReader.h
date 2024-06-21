@@ -64,7 +64,7 @@ enum CARD_READER
 
 struct ApduResponse
 {
-    std::vector<uint8_t> data;
+    QByteArray data;
     uint16_t statusWord;
 };
 
@@ -82,7 +82,7 @@ public:
     AcsReader();
     ~AcsReader();
 
-    int customTransmit(CARD_READER eCardReader, char *pCmd, uint8_t uCmdLen, char *pResp, uint8_t *uRespLen);
+    int customTransmit(CARD_READER eCardReader, char *pCmd, uint8_t uCmdLen, char *pResp, ulong *uRespLen);
     int transmit(CARD_READER eCardReader, char *pCmd, uint8_t uCmdLen, char *pResp, uint8_t *uRespLen);
     int open(enum CARD_READER eCardReader);
     int close(enum CARD_READER eCardReader);
@@ -92,7 +92,7 @@ public:
     uint8_t statusIcc();
     uint8_t statusPicc();
 
-    ApduResponse parseResponse(char *response, uint8_t responseLength);
+    ApduResponse parseResponse(char *response, ulong responseLength, bool mplus);
     ParsedApduResponse convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu);
 
 private:

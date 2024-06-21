@@ -45,9 +45,11 @@ public slots:
     void turnOffLed(); // Nuevo slot para apagar el LED
     void piccReader();
     void handlePostNetworkReply(QNetworkReply *reply);
-    void handlePostNetworkReplyZero(QNetworkReply *reply, const QString &atrPos, const QString &uuidPos);
+    void handlePostNetworkReplyZero(QNetworkReply *reply);
     void readWriteCard(const QString &atr, const QString &uuid);
-    void readWriteCardStepZero(const QString &atr, const QString &uuid, const QString &sessionId);
+    /* void readWriteCardStepZero(const QString &atr, const QString &uuid, const QString &sessionId); */
+    void readWriteCardStepZero(std::vector<ParsedApduResponse> responseApdus);
+    void handleMappedReply(QObject *replyObject);
 
     // Format Data
     QVariant parseJsonValue(const QString &jsonString);
@@ -55,16 +57,19 @@ public slots:
     QVariantList parseJsonArray(const QString &jsonString);
     void printResponseApdus(const std::vector<ParsedApduResponse> &responseApdus);
     QString bytesToHexString(const std::vector<uint8_t> &bytes);
-    QString generarResponseApdus(const std::vector<ParsedApduResponse> &responseApdus);
+    QString generarResponseApdus(const std::vector<ParsedApduResponse> responseApdus);
 
 private:
     MifareClassic cCard_;
     QString cardData;
-    QString atr;
-    QString uuid;
+    QString cardDataSecond;
+    QString atrNumberConfig;
+    QString uuidConfig;
     QString stepNumber;
-    QString sessionId;
+    QString sessionIdConfig;
     std::vector<ParsedApduResponse> responseApdus;
+
+    QSignalMapper *signalMapper;
 };
 //! [class definition]
 

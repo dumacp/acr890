@@ -22,6 +22,7 @@
 
 // Session Manager - Singleton
 #include "sessionmanager.h"
+#include <cstddef>
 
 // String build
 #include <iostream>
@@ -48,6 +49,12 @@ extern "C"
 ConfigScreen::ConfigScreen(QWidget *parent)
     : QWidget(parent)
 {
+    // Inicializar QSignalMappper
+    signalMapper = new QSignalMapper(this);
+
+    // Conectar la señal del QSignalMapper al slot
+    connect(signalMapper, SIGNAL(mapped(QObject *)), this, SLOT(handleMappedReply(QObject *)));
+
     // Descripción panel de configuración
     QLabel *paragraphLabel = new QLabel("Lorem Ipsum is simply dummy text of the printing and typesetting industry.");
     paragraphLabel->setFont(QFont("Arial", 11)); // Ajusta el tamaño de la fuente según sea necesario
@@ -269,7 +276,17 @@ void ConfigScreen::readWriteCard(const QString &atr, const QString &uuid)
     manager->post(request, postData);
 }
 
-void ConfigScreen::readWriteCardStepZero(const QString &atrPos, const QString &uuidPos, const QString &sessionId)
+void ConfigScreen::handleMappedReply(QObject *replyObject)
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(replyObject);
+    if (reply)
+    {
+        //// Aquí manejas la respuesta del network manager
+        handlePostNetworkReply(reply);
+    }
+}
+// const QString &atrPos, const QString &uuidPos, const QString &sessionId
+void ConfigScreen::readWriteCardStepZero(std::vector<ParsedApduResponse> responseApdus)
 {
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -285,38 +302,36 @@ void ConfigScreen::readWriteCardStepZero(const QString &atrPos, const QString &u
     request.setRawHeader("Content-Type", "application/json"); // Especificar el tipo de contenido como JSON
 
     // Crear el cuerpo de la solicitud utilizando variables
-    /* QString atrPos = atr;                                          // ATR
-    QString uuidPos = uuid; */
+    QString atrPos = atrNumberConfig; // ATR
+    QString uuidPos = uuidConfig.toUpper();
     // UUID
     QString pointOfSaleId = SessionManager::instance().getPosId(); // ID del punto de venta
     QString terminalKey = "001466";
-    /* QString posSessionId = sessionId; */
+    QString posSessionId = sessionIdConfig;
+    qDebug() << "size respondeApdu" << responseApdus.size();
+    QString responseApdusJson = generarResponseApdus(responseApdus);
 
     QString jsonString = QString(
                              "{"
-                             "\"atr\": \"%1\","
-                             "\"uuid\": \"%2\","
-                             "\"metadata\": {"
-                             "\"pointOfSaleId\": \"%3\","
-                             "\"terminalKey\": \"%4\""
-                             "},"
-                             "\"sessionId\": \"%5\","
-                             "\"responseApdus\": [%6]"
-                             "}")
+                             "\"atr\": \"%1\",\n"
+                             "\"uuid\": \"%2\",\n"
+                             "\"metadata\": {\n"
+                             "  \"pointOfSaleId\": \"%3\",\n"
+                             "  \"terminalKey\": \"%4\"\n"
+                             "},\n"
+                             "\"sessionId\": \"%5\",\n"
+                             "\"responseApdus\": [%6]\n"
+                             "}\n")
                              .arg(atrPos)
                              .arg(uuidPos)
                              .arg(pointOfSaleId)
                              .arg(terminalKey)
-                             .arg(sessionId)
-                             .arg(generarResponseApdus(responseApdus)); // Llama a una función que genera el contenido de "responseApdus"
+                             .arg(posSessionId)
+                             .arg(responseApdusJson); // Llama a una función que genera el contenido de "responseApdus"
 
     QByteArray postData = jsonString.toUtf8();
 
-    qDebug() << "atr" << atrPos;
-    qDebug() << "uuid" << uuidPos;
-    qDebug() << "pointOfSaleId" << pointOfSaleId;
-    qDebug() << "terminalKey" << terminalKey;
-    qDebug() << "sessionId" << sessionId;
+    qDebug() << "jsonString Final" << jsonString;
 
     // Conectar la señal de respuesta usando la sintaxis antigua
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReplyZero(QNetworkReply *)));
@@ -330,7 +345,7 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError)
     {
         QByteArray responseData = reply->readAll();
-        // qDebug() << "Response:" << responseData;
+        qDebug() << "Primera respuesta:" << responseData;
         cardData = QString(responseData);
         QVariantMap cardDataMap = parseJsonObject(cardData);
         if (cardDataMap.contains("nextStep"))
@@ -344,7 +359,10 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                 qDebug() << "Descripción: " << description;
             }
             if (nextStep.contains("sessionId"))
+            {
                 QString sessionId = nextStep["sessionId"].toString();
+                sessionIdConfig = sessionId;
+            }
 
             if (nextStep.contains("requestApdus"))
             {
@@ -360,8 +378,10 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                     uint8_t commandLength = static_cast<uint8_t>(sizeof(command));
 
                     char response[256];
-                    uint8_t responseLength = 0;
+                    ulong responseLength = 0;
                     CARD_READER cardReaderType = READER_PICC;
+
+                    qDebug() << "responseLength Test" << responseLength;
 
                     int status = _cReaderConfigScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
 
@@ -372,7 +392,13 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                         continue;
                     }
 
-                    ApduResponse apduResponse = _cReaderConfigScreen.parseResponse(response, responseLength);
+                    bool mplus;
+                    if (atrNumberConfig.size() < 13 * 2)
+                    {
+                        mplus = true;
+                    }
+
+                    ApduResponse apduResponse = _cReaderConfigScreen.parseResponse(response, responseLength, mplus);
 
                     ParsedApduResponse parsedResponse = _cReaderConfigScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 
@@ -383,14 +409,9 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                     qDebug() << "response:" << parsedResponse.responseApdu;
                 }
                 // Enviar array con APDUs de respuesta
-                QString atrPos = atr;
-                QString uuidPos = uuid;
-
-                readWriteCardStepZero(atrPos, uuidPos, sessionId);
-
-                // Imprimir el vector responseApdus
-                /* qDebug() << "responseApdus:";
-                printResponseApdus(responseApdus); */
+                QString atrStepZero = atrNumberConfig;
+                QString uuidStepZero = uuidConfig;
+                readWriteCardStepZero(responseApdus);
             }
         }
     }
@@ -409,9 +430,81 @@ void ConfigScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError)
     {
         QByteArray responseData = reply->readAll();
-        qDebug() << "Response:" << responseData;
-        qDebug() << "atrPos:" << atrPos;
-        qDebug() << "uuid:" << uuid;
+        qDebug() << "Segunda respuesta:" << responseData;
+
+        cardDataSecond = QString(responseData);
+        QVariantMap cardDataMap = parseJsonObject(cardDataSecond);
+
+        if (cardDataMap.contains("nextStep"))
+        {
+            QVariantMap nextStep = cardDataMap["nextStep"].toMap();
+            if (nextStep.size() > 0)
+            {
+                if (nextStep.contains("step"))
+                    QString stepNumber = nextStep["step"].toString();
+                if (nextStep.contains("desc"))
+                {
+                    QString description = nextStep["desc"].toString();
+                    qDebug() << "Descripción: " << description;
+                }
+                if (nextStep.contains("sessionId"))
+                {
+                    QString sessionId = nextStep["sessionId"].toString();
+                    sessionIdConfig = sessionId;
+                }
+
+                if (nextStep.contains("requestApdus"))
+                {
+                    QVariantList requestApdus = nextStep["requestApdus"].toList();
+                    std::vector<ParsedApduResponse> responseApdus; // Array to push every APDU response
+                    foreach (QVariant var, requestApdus)
+                    {
+                        QString requestApdu = var.toString();
+
+                        QByteArray commandTransform = requestApdu.toLatin1();
+                        char *command = commandTransform.data();
+
+                        uint8_t commandLength = static_cast<uint8_t>(sizeof(command));
+
+                        char response[256];
+                        ulong responseLength = 0;
+                        CARD_READER cardReaderType = READER_PICC;
+
+                        
+
+                        int status = _cReaderConfigScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
+
+                        qDebug() << "responseLength Test" << responseLength;
+                        if (status != 0)
+                        {
+                            qDebug() << "Error en la transmisión:" << status;
+                            // Manejar el error sin usar return
+                            continue;
+                        }
+
+                        bool mplus;
+                        if (atrNumberConfig.size() < 13 * 2)
+                        {
+                            mplus = true;
+                        }
+
+                        ApduResponse apduResponse = _cReaderConfigScreen.parseResponse(response, responseLength, mplus);
+
+                        ParsedApduResponse parsedResponse = _cReaderConfigScreen.convertToParsedApduResponse(apduResponse, requestApdu);
+
+                        responseApdus.push_back(parsedResponse);
+
+                        qDebug() << "apdu:" << parsedResponse.requestApdu;
+                        qDebug() << "isValid:" << parsedResponse.isValid;
+                        qDebug() << "response:" << parsedResponse.responseApdu;
+                    }
+                    // Enviar array con APDUs de respuesta
+                    QString atrStepZero = atrNumberConfig;
+                    QString uuidStepZero = uuidConfig;
+                    readWriteCardStepZero(responseApdus);
+                }
+            }
+        }
     }
     else
     {
@@ -475,11 +568,15 @@ void ConfigScreen::piccReader()
         std::string uuidStd = uuidValue.str();
 
         // Convertir std::string a QString usando fromUtf8
-        QString atr = QString::fromUtf8(atrStd.c_str(), atrStd.length());
-        QString uuid = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
+        /* QString atr = QString::fromUtf8(atrStd.c_str(), atrStd.length());
+        QString uuid = QString::fromUtf8(uuidStd.c_str(), uuidStd.length()); */
+
+        atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
+        uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
 
         // Executar lectura-escritura FLEET
-        readWriteCard(atr, uuid.toUpper());
+        /* readWriteCard(atr, uuid.toUpper()); */
+        readWriteCard(atrNumberConfig, uuidConfig.toUpper());
     }
     // picc_close();
 }
@@ -578,30 +675,25 @@ QString ConfigScreen::bytesToHexString(const std::vector<unsigned char> &bytes)
 }
 
 // Función para generar el contenido de "responseApdus"
-QString ConfigScreen::generarResponseApdus(const std::vector<ParsedApduResponse> &responseApdus)
+QString ConfigScreen::generarResponseApdus(const std::vector<ParsedApduResponse> responseApdus)
 {
-    QString resultString;
+    QStringList responseItems;
 
-    // Recorrer cada ParsedApduResponse en el vector
-    for (std::vector<ParsedApduResponse>::const_iterator it = responseApdus.begin(); it != responseApdus.end(); ++it)
+    for (size_t i = 0; i < responseApdus.size(); i++)
     {
-        const ParsedApduResponse &parsedResponse = *it;
 
         // Construir el string para cada ParsedApduResponse
         QString responseItem = QString("{ \"requestApdu\": \"%1\", \"isValid\": %2, \"responseApdu\": \"%3\" }")
-                                   .arg(parsedResponse.requestApdu)
-                                   .arg(parsedResponse.isValid ? "true" : "false")
-                                   .arg(parsedResponse.responseApdu);
+                                   .arg(responseApdus[i].requestApdu)
+                                   .arg(responseApdus[i].isValid ? "true" : "false")
+                                   .arg(responseApdus[i].responseApdu);
 
-        // Agregar el item al resultado final
-        resultString += responseItem;
-
-        // Agregar coma y espacio solo si no es el último elemento
-        if (it + 1 != responseApdus.end())
-        {
-            resultString += ", ";
-        }
+        // Agregar el item a la lista
+        responseItems << responseItem;
     }
+
+    // Unir todos los elementos en un solo string separado por comas
+    QString resultString = responseItems.join(",\n");
 
     return resultString;
 }

@@ -330,13 +330,19 @@ uint8_t AcsReader::statusPicc()
     return uStatusPicc;
 }
 
-ApduResponse AcsReader::parseResponse(char *response, uint8_t responseLength)
+ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
 {
     ApduResponse apduResponse;
-    if (responseLength >= 2)
+    if (mplus && responseLength >= 1)
+    {
+        apduResponse.statusWord = (response[0] << 8) | 0x00;
+        apduResponse.data = QByteArray::fromRawData(response, responseLength);
+    }
+    else if (responseLength >= 2)
     {
         apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
-        apduResponse.data.assign(response, response + responseLength - 2);
+        /* apduResponse.data.assign(response, response + responseLength - 2); */
+        apduResponse.data = QByteArray::fromRawData(response, responseLength);
     }
     else
     {
@@ -356,7 +362,7 @@ void AcsReader::printDebugLong(const QByteArray &data)
     qDebug() << "Debug Long:" << data.toHex();
 }
 
-int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t commandLength, char *pResponse, uint8_t *responseLength)
+int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t commandLength, char *pResponse, ulong *responseLength)
 {
     int iResponse = 0;
     unsigned long uLongResponseLength = 0;
@@ -373,10 +379,12 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
         iResponse = picc_transmit(reinterpret_cast<unsigned char *>(const_cast<char *>(commandArray.data())), commandArray.size(), reinterpret_cast<unsigned char *>(pResponse), &uLongResponseLength);
         printDebugLong(QByteArray(pResponse, uLongResponseLength));
 
+        qDebug() << "responseLength " << uLongResponseLength;
+
         if (iResponse)
             return iResponse;
 
-        *responseLength = static_cast<uint8_t>(uLongResponseLength);
+        *responseLength = static_cast<ulong>(uLongResponseLength);
         return 0;
 
     case READER_ICC:
@@ -419,6 +427,7 @@ ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &ap
     ParsedApduResponse parsedResponse;
     parsedResponse.requestApdu = apdu;
     parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
-    parsedResponse.responseApdu = QString("%1").arg(apduResponse.statusWord, 4, 16, QLatin1Char('0')).toUpper();
+    /* parsedResponse.responseApdu = QString("%1").arg(apduResponse.statusWord, 4, 16, QLatin1Char('0')).toUpper(); */
+    parsedResponse.responseApdu = apduResponse.data.toHex();
     return parsedResponse;
 }
