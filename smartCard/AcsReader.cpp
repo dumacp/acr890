@@ -341,10 +341,10 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     }
     else if (responseLength >= 2)
     {
+        /*         apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
+         */
         apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
         qDebug() << "apduResponse.statusWord" << apduResponse.statusWord;
-        /* apduResponse.data.assign(response, response + responseLength - 2); */
-        /* apduResponse.data = QByteArray::fromRawData(response, responseLength - 2); */
         apduResponse.data = QByteArray::fromRawData(response, responseLength - 2);
     }
     else
@@ -428,7 +428,7 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
 ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
 {
     ParsedApduResponse parsedResponse;
-    qDebug() << "statusWord" << apduResponse.statusWord;
+    qDebug() << "statusWord convertToParsedApduResponse" << apduResponse.statusWord;
     parsedResponse.requestApdu = apdu;
     parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
     /* parsedResponse.responseApdu = QString("%1").arg(apduResponse.statusWord, 4, 16, QLatin1Char('0')).toUpper(); */

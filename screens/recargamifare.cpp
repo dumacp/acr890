@@ -170,10 +170,6 @@ RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     connect(addressText, SIGNAL(textChanged(const QString &)), this, SLOT(validateAddressText(const QString &)));
 }
 
-/* RecargaMifareScreen::~RecargaMifareScreen()
-{
-} */
-
 void RecargaMifareScreen::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
