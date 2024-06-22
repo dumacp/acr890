@@ -13,6 +13,7 @@
 #include "screens/homescreen.h"
 #include "screens/productscreen.h"
 #include "screens/recargabilletera.h"
+#include "screens/recargamifare.h"
 #include "screens/sale/animation/saleprogress.h"
 #include "screens/sale/success/salesuccess.h"
 #include "screens/sale/error/saleerror.h"
@@ -43,6 +44,7 @@ private:
     ResponseDialog *responseDialog;
     ProductScreen *productScreen;
     RecargaBilleteraScreen *recargaBilleteraScreen;
+    RecargaMifareScreen *recargaMifareScreen;
     SaleProgress *saleProgress;
     SaleSuccess *saleSuccess;
     SaleError *saleError;
@@ -63,6 +65,7 @@ private slots:
     void showHomeScreen();
     void showProductScreen();
     void showRecargaBilleteraScreen();
+    void showRecargaMifareScreen();
     void changeToSaleSuccessScreen();
     void changeToSaleErrorScreen();
     void changeBackToRecargaBilletera();

@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      13,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -35,14 +35,15 @@ static const uint qt_meta_data_MainWindow[] = {
       47,   11,   11,   11, 0x08,
       67,   11,   11,   11, 0x08,
       96,   11,   11,   11, 0x08,
-     124,   11,   11,   11, 0x08,
+     122,   11,   11,   11, 0x08,
      150,   11,   11,   11, 0x08,
-     181,   11,   11,   11, 0x08,
-     201,   11,   11,   11, 0x08,
-     220,   11,   11,   11, 0x08,
-     239,   11,   11,   11, 0x08,
-     260,   11,   11,   11, 0x08,
-     282,   11,   11,   11, 0x08,
+     176,   11,   11,   11, 0x08,
+     207,   11,   11,   11, 0x08,
+     227,   11,   11,   11, 0x08,
+     246,   11,   11,   11, 0x08,
+     265,   11,   11,   11, 0x08,
+     286,   11,   11,   11, 0x08,
+     308,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -51,6 +52,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0showLoginScreen()\0"
     "showHomeScreen()\0showProductScreen()\0"
     "showRecargaBilleteraScreen()\0"
+    "showRecargaMifareScreen()\0"
     "changeToSaleSuccessScreen()\0"
     "changeToSaleErrorScreen()\0"
     "changeBackToRecargaBilletera()\0"
@@ -69,15 +71,16 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 1: _t->showHomeScreen(); break;
         case 2: _t->showProductScreen(); break;
         case 3: _t->showRecargaBilleteraScreen(); break;
-        case 4: _t->changeToSaleSuccessScreen(); break;
-        case 5: _t->changeToSaleErrorScreen(); break;
-        case 6: _t->changeBackToRecargaBilletera(); break;
-        case 7: _t->showHistoryScreen(); break;
-        case 8: _t->showConfigScreen(); break;
-        case 9: _t->setAuthenticated(); break;
-        case 10: _t->changeToSaleScreen(); break;
-        case 11: _t->setNotAuthenticated(); break;
-        case 12: _t->updateTime(); break;
+        case 4: _t->showRecargaMifareScreen(); break;
+        case 5: _t->changeToSaleSuccessScreen(); break;
+        case 6: _t->changeToSaleErrorScreen(); break;
+        case 7: _t->changeBackToRecargaBilletera(); break;
+        case 8: _t->showHistoryScreen(); break;
+        case 9: _t->showConfigScreen(); break;
+        case 10: _t->setAuthenticated(); break;
+        case 11: _t->changeToSaleScreen(); break;
+        case 12: _t->setNotAuthenticated(); break;
+        case 13: _t->updateTime(); break;
         default: ;
         }
     }
@@ -116,9 +119,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 13)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 14;
     }
     return _id;
 }

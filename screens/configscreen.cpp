@@ -1,5 +1,4 @@
 #include <QtGui>
-#include <QtGui>
 #include "configscreen.h"
 #include <QMessageBox>
 #include <QNetworkAccessManager>
@@ -285,7 +284,7 @@ void ConfigScreen::handleMappedReply(QObject *replyObject)
         handlePostNetworkReply(reply);
     }
 }
-// const QString &atrPos, const QString &uuidPos, const QString &sessionId
+
 void ConfigScreen::readWriteCardStepZero(std::vector<ParsedApduResponse> responseApdus)
 {
     // Crear el manager de la red
@@ -430,7 +429,7 @@ void ConfigScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError)
     {
         QByteArray responseData = reply->readAll();
-        qDebug() << "Segunda respuesta:" << responseData;
+        qDebug() << "Respuesta:" << responseData;
 
         cardDataSecond = QString(responseData);
         QVariantMap cardDataMap = parseJsonObject(cardDataSecond);
@@ -469,8 +468,6 @@ void ConfigScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                         char response[256];
                         ulong responseLength = 0;
                         CARD_READER cardReaderType = READER_PICC;
-
-                        
 
                         int status = _cReaderConfigScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
 
@@ -567,15 +564,10 @@ void ConfigScreen::piccReader()
         std::string atrStd = atrValue.str();
         std::string uuidStd = uuidValue.str();
 
-        // Convertir std::string a QString usando fromUtf8
-        /* QString atr = QString::fromUtf8(atrStd.c_str(), atrStd.length());
-        QString uuid = QString::fromUtf8(uuidStd.c_str(), uuidStd.length()); */
-
         atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
         uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
 
         // Executar lectura-escritura FLEET
-        /* readWriteCard(atr, uuid.toUpper()); */
         readWriteCard(atrNumberConfig, uuidConfig.toUpper());
     }
     // picc_close();
@@ -659,19 +651,6 @@ QVariantList ConfigScreen::parseJsonArray(const QString &jsonString)
     }
 
     return jsonArray;
-}
-
-QString ConfigScreen::bytesToHexString(const std::vector<unsigned char> &bytes)
-{
-    QString hexString;
-    QTextStream stream(&hexString);
-
-    for (size_t i = 0; i < bytes.size(); ++i)
-    {
-        stream << QString("%1").arg(bytes[i], 2, 16, QChar('0')).toUpper();
-    }
-
-    return hexString;
 }
 
 // Función para generar el contenido de "responseApdus"

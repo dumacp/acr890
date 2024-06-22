@@ -4,6 +4,7 @@ SOURCES   = mainwindow.cpp \
             screens/homescreen.cpp \
             screens/productscreen.cpp \
             screens/recargabilletera.cpp \
+            screens/recargamifare.cpp \
             screens/historyscreen.cpp \
             screens/configscreen.cpp \
             screens/dialog/dialog.cpp \
@@ -24,6 +25,7 @@ HEADERS   = mainwindow.h \
             screens/homescreen.h \
             screens/productscreen.h \
             screens/recargabilletera.h \
+            screens/recargamifare.h \
             screens/historyscreen.h \
             screens/configscreen.h \
             screens/dialog/dialog.h \

@@ -4,6 +4,7 @@
 #include <QVBoxLayout>     // Necesario para usar QVBoxLayout
 #include <QListWidget>     // Necesario para usar QListWidget
 #include <QListWidgetItem> // Necesario para usar QListWidget
+#include "sessionmanager.h"
 
 #include <stdio.h>
 
@@ -21,7 +22,10 @@ ProductScreen::ProductScreen(QWidget *parent)
 
     // Array de productos
     QStringList products;
-    products << "PRODUCTO PRUEBA" << "RECARGA BILLETERA" << "PRODUCTO PRUEBA";
+
+    QString posDataData = SessionManager::instance().getPointOfSaleData();
+
+    products << "RECARGA MIFARE" << "RECARGA BILLETERA" << "PRODUCTO PRUEBA";
 
     // Recorrer el array de productos y agregar cada uno a la lista
     for (int i = 0; i < products.size(); ++i)
@@ -80,10 +84,96 @@ void ProductScreen::productClicked()
         // Imprimir el índice y el nombre del producto seleccionado
         qDebug() << "Producto seleccionado:" << index << "Nombre:" << productName;
 
+        // Verificar si el nombre del producto es "RECARGA MIFARE" antes de emitir la señal
+        if (productName == "RECARGA MIFARE")
+        {
+            emit selectedProductMifare();
+        }
+
         // Verificar si el nombre del producto es "RECARGA BILLETERA" antes de emitir la señal
         if (productName == "RECARGA BILLETERA")
         {
             emit selectedProduct();
         }
     }
+}
+
+// Data parser
+QVariantMap ProductScreen::parseJsonObject(const QString &jsonString)
+{
+    QVariantMap jsonMap;
+    QRegExp rx("\"([^\"]*)\"\\s*:\\s*([^,\\{\\}\\[\\]]+|\\{[^\\}]*\\}|\\[[^\\]]*\\])");
+    int pos = 0;
+
+    while ((pos = rx.indexIn(jsonString, pos)) != -1)
+    {
+        QString key = rx.cap(1);
+        QString value = rx.cap(2);
+
+        jsonMap[key] = parseJsonValue(value);
+
+        pos += rx.matchedLength();
+    }
+
+    return jsonMap;
+}
+
+QVariant ProductScreen::parseJsonValue(const QString &jsonString)
+{
+    if (jsonString.startsWith('{'))
+    {
+        return parseJsonObject(jsonString);
+    }
+    else if (jsonString.startsWith('['))
+    {
+        return parseJsonArray(jsonString);
+    }
+    else if (jsonString == "true")
+    {
+        return true;
+    }
+    else if (jsonString == "false")
+    {
+        return false;
+    }
+    else if (jsonString == "null")
+    {
+        return QVariant();
+    }
+    else if (jsonString.startsWith('"'))
+    {
+        return jsonString.mid(1, jsonString.length() - 2); // Remove quotes
+    }
+    else
+    {
+        bool ok;
+        int intValue = jsonString.toInt(&ok);
+        if (ok)
+        {
+            return intValue;
+        }
+        double doubleValue = jsonString.toDouble(&ok);
+        if (ok)
+        {
+            return doubleValue;
+        }
+    }
+    return jsonString; // As fallback
+}
+
+QVariantList ProductScreen::parseJsonArray(const QString &jsonString)
+{
+    QVariantList jsonArray;
+    QRegExp rx("([^,\\[\\]\\{\\}]+|\\{[^\\}]*\\}|\\[[^\\]]*\\])");
+    int pos = 1; // Skip the initial '['
+
+    while ((pos = rx.indexIn(jsonString, pos)) != -1)
+    {
+        QString value = rx.cap(1);
+        jsonArray.append(parseJsonValue(value));
+
+        pos += rx.matchedLength();
+    }
+
+    return jsonArray;
 }

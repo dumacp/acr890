@@ -25,9 +25,16 @@ public:
 signals:
     void itemClicked(QListWidgetItem *item);
     void selectedProduct();
+    void selectedProductMifare();
 
 public slots:
     void productClicked();
+    QVariantMap parseJsonObject(const QString &jsonString);
+    QVariant parseJsonValue(const QString &jsonString);
+    QVariantList parseJsonArray(const QString &jsonString);
+
+private:
+    /*  QString posData; */
 };
 //! [class definition]
 

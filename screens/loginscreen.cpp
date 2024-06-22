@@ -256,6 +256,8 @@ void LoginScreen::handleSecondaryNetworkReply(QNetworkReply *reply)
 
             // Allmacenar la respuesta en el SessionManager
             SessionManager::instance().setPointOfSaleData(responseData);
+            qDebug() << "Aqui estoy enviando la data del POS" << responseData;
+            emitLoginSuccessToMainWindow();
 
             qDebug() << "POS data" << responseData;
         }

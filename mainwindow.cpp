@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     homeScreen = new HomeScreen;
     productScreen = new ProductScreen;
     recargaBilleteraScreen = new RecargaBilleteraScreen;
+    recargaMifareScreen = new RecargaMifareScreen;
     saleProgress = new SaleProgress;
     saleSuccess = new SaleSuccess;
     saleError = new SaleError;
@@ -69,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(homeScreen);
     stackedWidget->addWidget(productScreen);
     stackedWidget->addWidget(recargaBilleteraScreen);
+    stackedWidget->addWidget(recargaMifareScreen);
     stackedWidget->addWidget(saleProgress);
     stackedWidget->addWidget(saleSuccess);
     stackedWidget->addWidget(saleError);
@@ -104,6 +106,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Conectar la señal 'submitClickd()' de productscreen con el slot 'showRecargaBilleteraScreen()' de mainwindow
     connect(productScreen, SIGNAL(selectedProduct()), this, SLOT(showRecargaBilleteraScreen()));
+
+    // Conectar la señal 'submitClickd()' de productscreen con el slot 'showRecargaMifareScreen()' de mainwindow
+    connect(productScreen, SIGNAL(selectedProductMifare()), this, SLOT(showRecargaMifareScreen()));
 
     // Fullscreen
     setWindowState(windowState() ^ Qt::WindowFullScreen);
@@ -216,6 +221,7 @@ MainWindow::~MainWindow()
     delete homeScreen;
     delete productScreen;
     delete recargaBilleteraScreen;
+    delete recargaMifareScreen;
     delete historyScreen;
     delete stackedWidget;
 }
@@ -248,6 +254,12 @@ void MainWindow::showRecargaBilleteraScreen()
 {
     if (recargaBilleteraScreen != NULL)
         stackedWidget->setCurrentWidget(recargaBilleteraScreen);
+}
+
+void MainWindow::showRecargaMifareScreen()
+{
+    if (recargaMifareScreen != NULL)
+        stackedWidget->setCurrentWidget(recargaMifareScreen);
 }
 
 void MainWindow::showConfigScreen()

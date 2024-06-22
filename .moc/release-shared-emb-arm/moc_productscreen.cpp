@@ -22,26 +22,34 @@ static const uint qt_meta_data_ProductScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       2,       // signalCount
+       3,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       20,   15,   14,   14, 0x05,
       50,   14,   14,   14, 0x05,
+      68,   14,   14,   14, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      68,   14,   14,   14, 0x0a,
+      92,   14,   14,   14, 0x0a,
+     132,  121,  109,   14, 0x0a,
+     166,  121,  157,   14, 0x0a,
+     203,  121,  190,   14, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ProductScreen[] = {
     "ProductScreen\0\0item\0itemClicked(QListWidgetItem*)\0"
-    "selectedProduct()\0productClicked()\0"
+    "selectedProduct()\0selectedProductMifare()\0"
+    "productClicked()\0QVariantMap\0jsonString\0"
+    "parseJsonObject(QString)\0QVariant\0"
+    "parseJsonValue(QString)\0QVariantList\0"
+    "parseJsonArray(QString)\0"
 };
 
 void ProductScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -52,7 +60,14 @@ void ProductScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         switch (_id) {
         case 0: _t->itemClicked((*reinterpret_cast< QListWidgetItem*(*)>(_a[1]))); break;
         case 1: _t->selectedProduct(); break;
-        case 2: _t->productClicked(); break;
+        case 2: _t->selectedProductMifare(); break;
+        case 3: _t->productClicked(); break;
+        case 4: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
+        case 5: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariant*>(_a[0]) = _r; }  break;
+        case 6: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = _r; }  break;
         default: ;
         }
     }
@@ -90,9 +105,9 @@ int ProductScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 7)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 7;
     }
     return _id;
 }
@@ -108,5 +123,11 @@ void ProductScreen::itemClicked(QListWidgetItem * _t1)
 void ProductScreen::selectedProduct()
 {
     QMetaObject::activate(this, &staticMetaObject, 1, 0);
+}
+
+// SIGNAL 2
+void ProductScreen::selectedProductMifare()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, 0);
 }
 QT_END_MOC_NAMESPACE

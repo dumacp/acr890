@@ -56,7 +56,6 @@ public slots:
     QVariantMap parseJsonObject(const QString &jsonString);
     QVariantList parseJsonArray(const QString &jsonString);
     void printResponseApdus(const std::vector<ParsedApduResponse> &responseApdus);
-    QString bytesToHexString(const std::vector<uint8_t> &bytes);
     QString generarResponseApdus(const std::vector<ParsedApduResponse> responseApdus);
 
 private:
