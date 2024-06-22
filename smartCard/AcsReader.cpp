@@ -343,7 +343,9 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     {
         /*         apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
          */
-        apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
+        /*   apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
+        apduResponse.statusWord = (response[0] << 8) | 0x00;
+
         qDebug() << "apduResponse.statusWord" << apduResponse.statusWord;
         apduResponse.data = QByteArray::fromRawData(response, responseLength - 2);
     }
