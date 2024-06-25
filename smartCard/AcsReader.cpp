@@ -357,33 +357,33 @@ uint8_t AcsReader::statusPicc()
 ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
 {
     ApduResponse apduResponse;
+
     qDebug() << "responseLength:" << responseLength;
     qDebug() << "response data:" << QByteArray::fromRawData(response, responseLength).toHex();
 
-    if (mplus && responseLength >= 1)
+    if (responseLength >= 2)
     {
-        apduResponse.statusWord = (response[0] << 8) | 0x00;
-        apduResponse.data = QByteArray::fromRawData(response, responseLength);
-    }
-    else if (responseLength >= 2)
-    {
-        /* apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
-
-        // Extracción correcta de los últimos dos bytes
-        ulong highByte = static_cast<ulong>(response[responseLength - 2]);
-        ulong lowByte = static_cast<ulong>(response[responseLength - 1]);
+        uint8_t highByte = static_cast<uint8_t>(response[responseLength - 2]);
+        uint8_t lowByte = static_cast<uint8_t>(response[responseLength - 1]);
         apduResponse.statusWord = (highByte << 8) | lowByte;
 
         qDebug() << "Extracted statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
-        apduResponse.data = QByteArray(response, responseLength - 2);
-    }
-    else
-    {
-        apduResponse.statusWord = 0;
-        apduResponse.data.clear();
+
+        /*  if (apduResponse.statusWord == 0x9000)
+         {
+             apduResponse.isValid = true;
+         }
+         else
+         {
+             apduResponse.isValid = false;
+         } */
     }
 
     qDebug() << "Final apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
+
+    // Aquí puedes extraer los datos restantes según sea necesario
+    apduResponse.data = QByteArray(response, responseLength);
+
     qDebug() << "Final apduResponse.data:" << apduResponse.data.toHex();
 
     return apduResponse;
