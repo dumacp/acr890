@@ -485,8 +485,8 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
                     ulong responseLength = 0;
                     CARD_READER cardReaderType = READER_PICC;
 
-                    qDebug() << "responseLength Test" << responseLength;
-
+/*                     qDebug() << "responseLength Test" << responseLength;
+ */
                     int status = _cReaderMifareScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
 
                     if (status != 0)
@@ -616,8 +616,8 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
 
                         int status = _cReaderMifareScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
 
-                        qDebug() << "responseLength Test" << responseLength;
-                        if (status != 0)
+/*                         qDebug() << "responseLength Test" << responseLength;
+ */                        if (status != 0)
                         {
                             qDebug() << "Error en la transmisión:" << status;
                             // Manejar el error sin usar return

@@ -451,13 +451,24 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
     }
 }
 
-ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
+/* ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
 {
     ParsedApduResponse parsedResponse;
     qDebug() << "statusWord convertToParsedApduResponse" << apduResponse.statusWord;
     parsedResponse.requestApdu = apdu;
     parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
-    /* parsedResponse.responseApdu = QString("%1").arg(apduResponse.statusWord, 4, 16, QLatin1Char('0')).toUpper(); */
     parsedResponse.responseApdu = apduResponse.data.toHex();
+    return parsedResponse;
+} */
+
+ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
+{
+    ParsedApduResponse parsedResponse;
+    qDebug() << "statusWord convertToParsedApduResponse:" << QString::number(apduResponse.statusWord, 16).toUpper();
+    parsedResponse.requestApdu = apdu;
+    qDebug() << "Comparando statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper() << "con 0x9000";
+    parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
+    parsedResponse.responseApdu = apduResponse.data.toHex();
+    qDebug() << "isValid:" << parsedResponse.isValid;
     return parsedResponse;
 }
