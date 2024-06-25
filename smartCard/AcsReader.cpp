@@ -367,7 +367,8 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     }
     else if (responseLength >= 2)
     {
-        apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
+        /* apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
+        apduResponse.statusWord = (response[sizeof(response) - 2] << 8) | response[sizeof(response) - 1];
         apduResponse.data = QByteArray(response, responseLength - 2);
     }
     else
