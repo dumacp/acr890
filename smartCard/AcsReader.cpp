@@ -368,8 +368,7 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     else if (responseLength >= 2)
     {
         apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
-        qDebug() << "apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
-        apduResponse.data = QByteArray::fromRawData(response, responseLength - 2);
+        apduResponse.data = QByteArray(response, responseLength - 2);
     }
     else
     {
@@ -409,8 +408,6 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
     case READER_PICC:
         iResponse = picc_transmit(reinterpret_cast<unsigned char *>(const_cast<char *>(commandArray.data())), commandArray.size(), reinterpret_cast<unsigned char *>(pResponse), &uLongResponseLength);
         printDebugLong(QByteArray(pResponse, uLongResponseLength));
-
-        qDebug() << "responseLength " << uLongResponseLength;
 
         if (iResponse)
             return iResponse;
