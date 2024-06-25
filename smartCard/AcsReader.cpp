@@ -368,7 +368,7 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     else if (responseLength >= 2)
     {
         /* apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
-        apduResponse.statusWord = (response[sizeof(response) - 2] << 8) | response[sizeof(response) - 1];
+        apduResponse.statusWord = (response[responseLength - 2] << 8) | (response[responseLength - 1] & 0xFF);
         apduResponse.data = QByteArray(response, responseLength - 2);
     }
     else
@@ -455,21 +455,36 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
 /* ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
 {
     ParsedApduResponse parsedResponse;
-    qDebug() << "statusWord convertToParsedApduResponse" << apduResponse.statusWord;
-    parsedResponse.requestApdu = apdu;
-    parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
-    parsedResponse.responseApdu = apduResponse.data.toHex();
-    return parsedResponse;
-} */
-
-ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
-{
-    ParsedApduResponse parsedResponse;
     qDebug() << "statusWord convertToParsedApduResponse:" << QString::number(apduResponse.statusWord, 16).toUpper();
     parsedResponse.requestApdu = apdu;
     qDebug() << "Comparando statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper() << "con 0x9000";
     parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
     parsedResponse.responseApdu = apduResponse.data.toHex();
     qDebug() << "isValid:" << parsedResponse.isValid;
+    return parsedResponse;
+} */
+
+ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
+{
+    ParsedApduResponse parsedResponse;
+    parsedResponse.requestApdu = apdu;
+
+    // Verifica los valores en diferentes formatos
+    qDebug() << "statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
+    qDebug() << "statusWord (dec):" << apduResponse.statusWord;
+    qDebug() << "Comparando statusWord con 0x9000";
+    qDebug() << "0x9000 (dec):" << 0x9000;
+
+    // Asegúrate de que statusWord sea del tipo adecuado
+    uint16_t expectedStatusWord = 0x9000;
+    qDebug() << "expectedStatusWord (hex):" << QString::number(expectedStatusWord, 16).toUpper();
+    qDebug() << "expectedStatusWord (dec):" << expectedStatusWord;
+
+    parsedResponse.isValid = (apduResponse.statusWord == expectedStatusWord);
+
+    // Mostrar el resultado de la comparación
+    qDebug() << "isValid:" << parsedResponse.isValid;
+
+    parsedResponse.responseApdu = apduResponse.data.toHex();
     return parsedResponse;
 }
