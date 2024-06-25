@@ -369,10 +369,12 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     {
         /* apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
 
-        // Verificar la longitud y extraer correctamente los últimos dos bytes
-        apduResponse.statusWord = (static_cast<ulong>(response[responseLength - 2]) << 8) |
-                                  static_cast<ulong>(response[responseLength - 1]);
-        qDebug() << "Extracted statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
+        // Extracción correcta de los últimos dos bytes
+        uint8_t highByte = static_cast<uint8_t>(response[responseLength - 2]);
+        uint8_t lowByte = static_cast<uint8_t>(response[responseLength - 1]);
+        apduResponse.statusWord = (highByte << 8) | lowByte;
+
+        qDebug() << "Extracted statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
         apduResponse.data = QByteArray(response, responseLength - 2);
     }
     else
@@ -473,20 +475,17 @@ ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &ap
     ParsedApduResponse parsedResponse;
     parsedResponse.requestApdu = apdu;
 
-    // Verifica los valores en diferentes formatos
     qDebug() << "statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
     qDebug() << "statusWord (dec):" << apduResponse.statusWord;
     qDebug() << "Comparando statusWord con 0x9000";
     qDebug() << "0x9000 (dec):" << 0x9000;
 
-    // Asegúrate de que statusWord sea del tipo adecuado
     uint16_t expectedStatusWord = 0x9000;
     qDebug() << "expectedStatusWord (hex):" << QString::number(expectedStatusWord, 16).toUpper();
     qDebug() << "expectedStatusWord (dec):" << expectedStatusWord;
 
     parsedResponse.isValid = (apduResponse.statusWord == expectedStatusWord);
 
-    // Mostrar el resultado de la comparación
     qDebug() << "isValid:" << parsedResponse.isValid;
 
     parsedResponse.responseApdu = apduResponse.data.toHex();
