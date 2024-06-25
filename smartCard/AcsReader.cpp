@@ -399,7 +399,8 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
         if (iResponse)
             return iResponse;
 
-        *responseLength = static_cast<uint8_t>(uIntResponseLength);
+        /* *responseLength = static_cast<uint8_t>(uIntResponseLength); */
+        *responseLength = static_cast<ulong>(uIntResponseLength);
         return 0;
 
     case READER_ICC_SAM1:
