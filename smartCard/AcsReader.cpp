@@ -330,7 +330,7 @@ uint8_t AcsReader::statusPicc()
     return uStatusPicc;
 }
 
-ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
+/* ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
 {
     ApduResponse apduResponse;
     qDebug() << "responseLength" << responseLength;
@@ -341,10 +341,7 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     }
     else if (responseLength >= 2)
     {
-        /*         apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
-         */
-        /*   apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
-        apduResponse.statusWord = (response[0] << 8) | 0x00;
+        apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
 
         qDebug() << "apduResponse.statusWord" << apduResponse.statusWord;
         apduResponse.data = QByteArray::fromRawData(response, responseLength - 2);
@@ -354,6 +351,35 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
         apduResponse.statusWord = 0;
         apduResponse.data.clear();
     }
+    return apduResponse;
+} */
+
+ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
+{
+    ApduResponse apduResponse;
+    qDebug() << "responseLength:" << responseLength;
+    qDebug() << "response data:" << QByteArray::fromRawData(response, responseLength).toHex();
+
+    if (mplus && responseLength >= 1)
+    {
+        apduResponse.statusWord = (response[0] << 8) | 0x00;
+        apduResponse.data = QByteArray::fromRawData(response, responseLength);
+    }
+    else if (responseLength >= 2)
+    {
+        apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
+        qDebug() << "apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
+        apduResponse.data = QByteArray::fromRawData(response, responseLength - 2);
+    }
+    else
+    {
+        apduResponse.statusWord = 0;
+        apduResponse.data.clear();
+    }
+
+    qDebug() << "Final apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
+    qDebug() << "Final apduResponse.data:" << apduResponse.data.toHex();
+
     return apduResponse;
 }
 
