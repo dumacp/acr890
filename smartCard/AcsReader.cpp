@@ -368,7 +368,11 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     else if (responseLength >= 2)
     {
         /* apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1]; */
-        apduResponse.statusWord = (response[responseLength - 2] << 8) | (response[responseLength - 1] & 0xFF);
+
+        // Verificar la longitud y extraer correctamente los últimos dos bytes
+        apduResponse.statusWord = (static_cast<ulong>(response[responseLength - 2]) << 8) |
+                                  static_cast<ulong>(response[responseLength - 1]);
+        qDebug() << "Extracted statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
         apduResponse.data = QByteArray(response, responseLength - 2);
     }
     else
