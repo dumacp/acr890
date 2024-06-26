@@ -485,8 +485,6 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
                     ulong responseLength = 0;
                     CARD_READER cardReaderType = READER_PICC;
 
-/*                     qDebug() << "responseLength Test" << responseLength;
- */
                     int status = _cReaderMifareScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
 
                     if (status != 0)
@@ -496,6 +494,7 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
                         continue;
                     }
 
+                    // Validar si la tarjeta es Mifare Plus
                     bool mplus;
                     if (atrNumberConfig.size() < 13 * 2)
                     {
@@ -551,41 +550,11 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     QString step = nextStep["step"].toString();
                     if (step.isNull())
                     {
-                        picc_close();
-
-                        QVariantMap appliedModsMap = cardDataMap["appliedMods"].toMap();
-                        if (appliedModsMap.size() > 0)
-                        {
-                            // Convertir el primer elemento de appliedModsMap a QVariantMap
-                            QVariantMap firstAppliedMod = appliedModsMap[0].toMap();
-
-                            // Verificar si el QVariantMap contiene la clave "id"
-                            if (firstAppliedMod.contains("id"))
-                            {
-                                QString appliedModsId = firstAppliedMod["id"].toString();
-                                qDebug() << "appliedModsId" << appliedModsId;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // QVariantMap nextStep = cardDataMap["nextStep"].toMap();
-            if (nextStep.size() > 0)
-            {
-                if (nextStep.contains("step"))
-                {
-                    QString stepNumber = nextStep["step"].toString();
-                    qDebug() << "stepNumber" << stepNumber;
-                    qDebug() << "isNull: " << stepNumber.isNull();
-                    if (stepNumber.isNull())
-                    {
-                        picc_close();
                         QString error = nextStep["error"].toString();
                         qDebug() << "error" << error;
+                        picc_close();
                     }
                 }
-
                 if (nextStep.contains("desc"))
                 {
                     QString description = nextStep["desc"].toString();
@@ -596,7 +565,6 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     QString sessionId = nextStep["sessionId"].toString();
                     sessionIdConfig = sessionId;
                 }
-
                 if (nextStep.contains("requestApdus"))
                 {
                     QVariantList requestApdus = nextStep["requestApdus"].toList();
@@ -616,8 +584,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
 
                         int status = _cReaderMifareScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
 
-/*                         qDebug() << "responseLength Test" << responseLength;
- */                        if (status != 0)
+                        if (status != 0)
                         {
                             qDebug() << "Error en la transmisión:" << status;
                             // Manejar el error sin usar return
@@ -641,9 +608,9 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                         qDebug() << "response:" << parsedResponse.responseApdu;
                     }
                     // Enviar array con APDUs de respuesta
-                    /*    QString atrStepZero = atrNumberConfig;
-                       QString uuidStepZero = uuidConfig;
-                       readWriteCardStepZero(responseApdus); */
+                    QString atrStepZero = atrNumberConfig;
+                    QString uuidStepZero = uuidConfig;
+                    readWriteCardStepZero(responseApdus);
                 }
             }
         }

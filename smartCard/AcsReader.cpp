@@ -330,30 +330,6 @@ uint8_t AcsReader::statusPicc()
     return uStatusPicc;
 }
 
-/* ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
-{
-    ApduResponse apduResponse;
-    qDebug() << "responseLength" << responseLength;
-    if (mplus && responseLength >= 1)
-    {
-        apduResponse.statusWord = (response[0] << 8) | 0x00;
-        apduResponse.data = QByteArray::fromRawData(response, responseLength);
-    }
-    else if (responseLength >= 2)
-    {
-        apduResponse.statusWord = (response[responseLength - 2] << 8) | response[responseLength - 1];
-
-        qDebug() << "apduResponse.statusWord" << apduResponse.statusWord;
-        apduResponse.data = QByteArray::fromRawData(response, responseLength - 2);
-    }
-    else
-    {
-        apduResponse.statusWord = 0;
-        apduResponse.data.clear();
-    }
-    return apduResponse;
-} */
-
 ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool mplus)
 {
     ApduResponse apduResponse;
@@ -367,27 +343,17 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
         apduResponse.data = QByteArray::fromRawData(response, responseLength);
     }
 
-    else if (responseLength >= 2)
+    if (responseLength >= 2)
     {
         uint8_t highByte = static_cast<uint8_t>(response[responseLength - 2]);
         uint8_t lowByte = static_cast<uint8_t>(response[responseLength - 1]);
         apduResponse.statusWord = (highByte << 8) | lowByte;
 
         qDebug() << "Extracted statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
-
-        /*  if (apduResponse.statusWord == 0x9000)
-         {
-             apduResponse.isValid = true;
-         }
-         else
-         {
-             apduResponse.isValid = false;
-         } */
     }
 
     qDebug() << "Final apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
 
-    // Aquí puedes extraer los datos restantes según sea necesario
     apduResponse.data = QByteArray(response, responseLength);
 
     qDebug() << "Final apduResponse.data:" << apduResponse.data.toHex();
@@ -413,9 +379,6 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
 
     QByteArray commandArray = QByteArray::fromHex(pCommand);
 
-    // qDebug() << "commandArray: " << QString::fromLatin1(commandArray);
-    // printDebug(commandArray);
-
     switch (eCardReader)
     {
     case READER_PICC:
@@ -435,7 +398,6 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
         if (iResponse)
             return iResponse;
 
-        /* *responseLength = static_cast<uint8_t>(uIntResponseLength); */
         *responseLength = static_cast<ulong>(uIntResponseLength);
         return 0;
 
@@ -463,18 +425,6 @@ int AcsReader::customTransmit(CARD_READER eCardReader, char *pCommand, uint8_t c
         return 255;
     }
 }
-
-/* ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
-{
-    ParsedApduResponse parsedResponse;
-    qDebug() << "statusWord convertToParsedApduResponse:" << QString::number(apduResponse.statusWord, 16).toUpper();
-    parsedResponse.requestApdu = apdu;
-    qDebug() << "Comparando statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper() << "con 0x9000";
-    parsedResponse.isValid = (apduResponse.statusWord == 0x9000);
-    parsedResponse.responseApdu = apduResponse.data.toHex();
-    qDebug() << "isValid:" << parsedResponse.isValid;
-    return parsedResponse;
-} */
 
 ParsedApduResponse AcsReader::convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu)
 {
