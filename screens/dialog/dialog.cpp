@@ -56,6 +56,9 @@ ResponseDialog::ResponseDialog(QWidget *parent) : QDialog(parent, Qt::FramelessW
     // Sale Success
     connect(closeButton, SIGNAL(clicked()), this, SLOT(emitSaleSuccessAndClose()));
 
+    // Mifare Sale Success
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(emitMifareSaleSuccessAndClose()));
+
     // Sale Error
     connect(closeButton, SIGNAL(clicked()), this, SLOT(emitSaleErrorAndClose()));
 
@@ -128,6 +131,12 @@ void ResponseDialog::emitLoginErrorAndClose()
 void ResponseDialog::emitSaleSuccessAndClose()
 {
     emit saleSuccess();
+    close();
+}
+
+void ResponseDialog::emitMifareSaleSuccessAndClose()
+{
+    emit mifareSaleSuccess();
     close();
 }
 

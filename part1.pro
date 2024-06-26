@@ -9,6 +9,7 @@ SOURCES   = mainwindow.cpp \
             screens/configscreen.cpp \
             screens/dialog/dialog.cpp \
             screens/sale/animation/saleprogress.cpp \
+            screens/sale/animation/mifaresaleprogress.cpp \
             screens/sale/error/saleerror.cpp \
             screens/sale/success/salesuccess.cpp \
             smartCard/AcsException.cpp \
@@ -30,6 +31,7 @@ HEADERS   = mainwindow.h \
             screens/configscreen.h \
             screens/dialog/dialog.h \
             screens/sale/animation/saleprogress.h \
+            screens/sale/animation/mifaresaleprogress.h \
             screens/sale/error/saleerror.h \
             screens/sale/success/salesuccess.h \
             smartCard/AcsException.h \

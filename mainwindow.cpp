@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     recargaBilleteraScreen = new RecargaBilleteraScreen;
     recargaMifareScreen = new RecargaMifareScreen;
     saleProgress = new SaleProgress;
+    mifareSaleProgress = new MifareSaleProgress;
     saleSuccess = new SaleSuccess;
     saleError = new SaleError;
     historyScreen = new HistoryScreen;
@@ -72,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(recargaBilleteraScreen);
     stackedWidget->addWidget(recargaMifareScreen);
     stackedWidget->addWidget(saleProgress);
+    stackedWidget->addWidget(mifareSaleProgress);
     stackedWidget->addWidget(saleSuccess);
     stackedWidget->addWidget(saleError);
     stackedWidget->addWidget(historyScreen);
@@ -88,6 +90,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Conectar la señal 'showSaleScreen()' de recargaBilleteraScreen con el slot 'changeToSaleScreen()' de mainwindow
     connect(recargaBilleteraScreen, SIGNAL(showSaleScreen()), this, SLOT(changeToSaleScreen()));
+
+    // Conectar la señal 'showMifareSaleScreen()' de recargaMifareScreen con el slot 'changeToMifareSaleScreen()' de mainwindow
+    connect(recargaMifareScreen, SIGNAL(showMifareSaleScreen()), this, SLOT(changeToMifareSaleScreen()));
 
     // Conectar la señal 'progressDoneSuccess()' de SaleProgress con el slot 'changeToSaleScreen()' de mainwindow
     connect(saleProgress, SIGNAL(progressDoneSuccess()), this, SLOT(changeToSaleSuccessScreen()));
@@ -224,6 +229,11 @@ MainWindow::~MainWindow()
     delete recargaMifareScreen;
     delete historyScreen;
     delete stackedWidget;
+    delete configScreen;
+    delete saleProgress;
+    delete mifareSaleProgress;
+    delete saleError;
+    delete saleSuccess;
 }
 
 void MainWindow::showLoginScreen()
@@ -285,6 +295,16 @@ void MainWindow::changeToSaleScreen()
     saleProgress->startAnimation();
     qDebug()
         << "Cambiar a saleProgress" << "todo ok";
+}
+
+void MainWindow::changeToMifareSaleScreen()
+{
+    notificationBarContainer->setVisible(false);
+    navigationBarContainer->setVisible(false);
+    stackedWidget->setCurrentWidget(mifareSaleProgress);
+    mifareSaleProgress->startAnimation();
+    qDebug()
+        << "Cambiar a mifareSaleProgress" << "todo ok";
 }
 
 void MainWindow::changeToSaleSuccessScreen()

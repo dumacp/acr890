@@ -28,12 +28,14 @@ signals:
     void loginServerError();
     void saleSuccess();
     void saleError();
+    void mifareSaleSuccess();
 
 private slots:
     void emitLoginSuccessAndClose();
     void emitLoginErrorAndClose();
     void emitSaleErrorAndClose();
     void emitSaleSuccessAndClose();
+    void emitMifareSaleSuccessAndClose();
 
 private:
     QLabel *responseLabel;

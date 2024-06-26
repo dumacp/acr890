@@ -38,7 +38,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 signals:
-    void showSaleScreen();
+    void showMifareSaleScreen();
 
 protected:
     void showEvent(QShowEvent *event);
@@ -55,8 +55,8 @@ public slots:
     int removeCommasAndConvertToInt(const QString &priceString);
     void validateAddressText(const QString &text);
     QString extractNumericValue(const QString &text);
-    void emitSaleSuccessToMainWindow();
-    void emitSaleErrorToMainWindow();
+    void emitMifareSaleSuccessToMainWindow();
+    void emitMifareSaleErrorToMainWindow();
     void piccReader();
 
     // Card
@@ -96,6 +96,10 @@ private:
     QString userName;
     QString userId;
     QString userDocument;
+    QString payId;
+    QString endUserFullname;
+    QString endUserId;
+    QString endUserDocument;
     QString currentBalance;
     QString modifyingText;
 };

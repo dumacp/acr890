@@ -33,33 +33,33 @@ static const uint qt_meta_data_RecargaMifareScreen[] = {
       21,   20,   20,   20, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      38,   20,   20,   20, 0x0a,
-      53,   20,   20,   20, 0x0a,
-      80,   20,   20,   20, 0x0a,
-     121,  110,  101,   20, 0x0a,
-     162,  145,   20,   20, 0x0a,
-     192,   20,   20,   20, 0x0a,
-     228,  216,  212,   20, 0x0a,
-     270,  265,   20,   20, 0x0a,
-     307,  265,  299,   20, 0x0a,
-     336,   20,   20,   20, 0x0a,
-     366,   20,   20,   20, 0x0a,
-     394,   20,   20,   20, 0x0a,
-     407,   20,   20,   20, 0x0a,
-     431,  422,   20,   20, 0x0a,
-     468,  462,   20,   20, 0x0a,
-     521,  507,   20,   20, 0x0a,
-     576,  462,   20,   20, 0x0a,
-     631,  110,  619,   20, 0x0a,
-     669,  110,  656,   20, 0x0a,
-     693,  507,  299,   20, 0x0a,
-     747,  110,  619,   20, 0x0a,
+      44,   20,   20,   20, 0x0a,
+      59,   20,   20,   20, 0x0a,
+      86,   20,   20,   20, 0x0a,
+     127,  116,  107,   20, 0x0a,
+     168,  151,   20,   20, 0x0a,
+     198,   20,   20,   20, 0x0a,
+     234,  222,  218,   20, 0x0a,
+     276,  271,   20,   20, 0x0a,
+     313,  271,  305,   20, 0x0a,
+     342,   20,   20,   20, 0x0a,
+     378,   20,   20,   20, 0x0a,
+     412,   20,   20,   20, 0x0a,
+     425,   20,   20,   20, 0x0a,
+     449,  440,   20,   20, 0x0a,
+     486,  480,   20,   20, 0x0a,
+     539,  525,   20,   20, 0x0a,
+     594,  480,   20,   20, 0x0a,
+     649,  116,  637,   20, 0x0a,
+     687,  116,  674,   20, 0x0a,
+     711,  525,  305,   20, 0x0a,
+     765,  116,  637,   20, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_RecargaMifareScreen[] = {
-    "RecargaMifareScreen\0\0showSaleScreen()\0"
+    "RecargaMifareScreen\0\0showMifareSaleScreen()\0"
     "handleSubmit()\0handleTextChanged(QString)\0"
     "executeSale(QString)\0QVariant\0jsonString\0"
     "parseJsonValue(QString)\0balance,response\0"
@@ -68,9 +68,9 @@ static const char qt_meta_stringdata_RecargaMifareScreen[] = {
     "removeCommasAndConvertToInt(QString)\0"
     "text\0validateAddressText(QString)\0"
     "QString\0extractNumericValue(QString)\0"
-    "emitSaleSuccessToMainWindow()\0"
-    "emitSaleErrorToMainWindow()\0piccReader()\0"
-    "checkForCard()\0atr,uuid\0"
+    "emitMifareSaleSuccessToMainWindow()\0"
+    "emitMifareSaleErrorToMainWindow()\0"
+    "piccReader()\0checkForCard()\0atr,uuid\0"
     "readWriteCard(QString,QString)\0reply\0"
     "handlePostNetworkReply(QNetworkReply*)\0"
     "responseApdus\0"
@@ -88,7 +88,7 @@ void RecargaMifareScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, 
         Q_ASSERT(staticMetaObject.cast(_o));
         RecargaMifareScreen *_t = static_cast<RecargaMifareScreen *>(_o);
         switch (_id) {
-        case 0: _t->showSaleScreen(); break;
+        case 0: _t->showMifareSaleScreen(); break;
         case 1: _t->handleSubmit(); break;
         case 2: _t->handleTextChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 3: _t->executeSale((*reinterpret_cast< const QString(*)>(_a[1]))); break;
@@ -101,8 +101,8 @@ void RecargaMifareScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, 
         case 8: _t->validateAddressText((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 9: { QString _r = _t->extractNumericValue((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 10: _t->emitSaleSuccessToMainWindow(); break;
-        case 11: _t->emitSaleErrorToMainWindow(); break;
+        case 10: _t->emitMifareSaleSuccessToMainWindow(); break;
+        case 11: _t->emitMifareSaleErrorToMainWindow(); break;
         case 12: _t->piccReader(); break;
         case 13: _t->checkForCard(); break;
         case 14: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
@@ -162,7 +162,7 @@ int RecargaMifareScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void RecargaMifareScreen::showSaleScreen()
+void RecargaMifareScreen::showMifareSaleScreen()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, 0);
 }

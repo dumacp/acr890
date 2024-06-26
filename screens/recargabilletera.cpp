@@ -603,11 +603,6 @@ void RecargaBilleteraScreen::keyPressEvent(QKeyEvent *event)
         qDebug() << "Return key pressed ";
         break;
     }
-    case Qt::Key_F3:
-        // Poner el foco en addressText
-        if (focusWidget() == addressText)
-            nameLine->setFocus();
-        break;
     case Qt::Key_F2:
         // Poner el foco en nameLine
         if (focusWidget() == nameLine)

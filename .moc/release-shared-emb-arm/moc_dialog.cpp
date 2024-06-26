@@ -22,12 +22,12 @@ static const uint qt_meta_data_ResponseDialog[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+      11,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       5,       // signalCount
+       6,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       16,   15,   15,   15, 0x05,
@@ -35,12 +35,14 @@ static const uint qt_meta_data_ResponseDialog[] = {
       44,   15,   15,   15, 0x05,
       63,   15,   15,   15, 0x05,
       77,   15,   15,   15, 0x05,
+      89,   15,   15,   15, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      89,   15,   15,   15, 0x08,
-     116,   15,   15,   15, 0x08,
-     141,   15,   15,   15, 0x08,
-     165,   15,   15,   15, 0x08,
+     109,   15,   15,   15, 0x08,
+     136,   15,   15,   15, 0x08,
+     161,   15,   15,   15, 0x08,
+     185,   15,   15,   15, 0x08,
+     211,   15,   15,   15, 0x08,
 
        0        // eod
 };
@@ -48,11 +50,12 @@ static const uint qt_meta_data_ResponseDialog[] = {
 static const char qt_meta_stringdata_ResponseDialog[] = {
     "ResponseDialog\0\0loginSuccess()\0"
     "loginError()\0loginServerError()\0"
-    "saleSuccess()\0saleError()\0"
+    "saleSuccess()\0saleError()\0mifareSaleSuccess()\0"
     "emitLoginSuccessAndClose()\0"
     "emitLoginErrorAndClose()\0"
     "emitSaleErrorAndClose()\0"
     "emitSaleSuccessAndClose()\0"
+    "emitMifareSaleSuccessAndClose()\0"
 };
 
 void ResponseDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -66,10 +69,12 @@ void ResponseDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 2: _t->loginServerError(); break;
         case 3: _t->saleSuccess(); break;
         case 4: _t->saleError(); break;
-        case 5: _t->emitLoginSuccessAndClose(); break;
-        case 6: _t->emitLoginErrorAndClose(); break;
-        case 7: _t->emitSaleErrorAndClose(); break;
-        case 8: _t->emitSaleSuccessAndClose(); break;
+        case 5: _t->mifareSaleSuccess(); break;
+        case 6: _t->emitLoginSuccessAndClose(); break;
+        case 7: _t->emitLoginErrorAndClose(); break;
+        case 8: _t->emitSaleErrorAndClose(); break;
+        case 9: _t->emitSaleSuccessAndClose(); break;
+        case 10: _t->emitMifareSaleSuccessAndClose(); break;
         default: ;
         }
     }
@@ -108,9 +113,9 @@ int ResponseDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 11;
     }
     return _id;
 }
@@ -143,5 +148,11 @@ void ResponseDialog::saleSuccess()
 void ResponseDialog::saleError()
 {
     QMetaObject::activate(this, &staticMetaObject, 4, 0);
+}
+
+// SIGNAL 5
+void ResponseDialog::mifareSaleSuccess()
+{
+    QMetaObject::activate(this, &staticMetaObject, 5, 0);
 }
 QT_END_MOC_NAMESPACE

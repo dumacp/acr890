@@ -15,6 +15,7 @@
 #include "screens/recargabilletera.h"
 #include "screens/recargamifare.h"
 #include "screens/sale/animation/saleprogress.h"
+#include "screens/sale/animation/mifaresaleprogress.h"
 #include "screens/sale/success/salesuccess.h"
 #include "screens/sale/error/saleerror.h"
 #include "screens/historyscreen.h"
@@ -46,6 +47,7 @@ private:
     RecargaBilleteraScreen *recargaBilleteraScreen;
     RecargaMifareScreen *recargaMifareScreen;
     SaleProgress *saleProgress;
+    MifareSaleProgress *mifareSaleProgress;
     SaleSuccess *saleSuccess;
     SaleError *saleError;
     ConfigScreen *configScreen;
@@ -73,6 +75,7 @@ private slots:
     void showConfigScreen();
     void setAuthenticated();
     void changeToSaleScreen();
+    void changeToMifareSaleScreen();
     void setNotAuthenticated();
     void updateTime();
 };

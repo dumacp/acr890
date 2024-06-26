@@ -15,17 +15,20 @@ public:
     void setJwtToken(const QString &token) { jwtToken = token; }
     QString getJwtToken() const { return jwtToken; }
 
-    /* void setPosData(const QString &data) { posData = data; }
-    QString getPosData() const { return posData; } */
-
     void setCurrentUserId(const QString &id) { userId = id; }
     QString getCurrentUserId() const { return userId; }
+
+    void setPaymentMediumId(const QString &paymentMediumId) { currentPaymentMediumId = paymentMediumId; }
+    QString getPaymentMediumId() const { return currentPaymentMediumId; }
 
     void setCurrentUserDocument(const QString &document) { userDocument = document; }
     QString getCurrentUserDocument() const { return userDocument; }
 
     void setCurrentUnitPrice(const int &unitPrice) { currentUnitPrice = unitPrice; }
     int getCurrentUnitPrice() const { return currentUnitPrice; }
+
+    void setCurrentMifareUnitPrice(const int &mifareUnitPrice) { currentMifareUnitPrice = mifareUnitPrice; }
+    int getCurrentMifareUnitPrice() const { return currentMifareUnitPrice; }
 
     void setPointOfSaleData(const QByteArray &data) { pointOfSaleData = data; }
     QByteArray getPointOfSaleData() const { return pointOfSaleData; }
@@ -41,7 +44,9 @@ private:
     QString jwtToken;
     QString userId;
     QString userDocument;
+    QString currentPaymentMediumId;
     int currentUnitPrice;
+    int currentMifareUnitPrice;
     QByteArray pointOfSaleData;
     QString currentAccessToken;
     QString currentPosId;

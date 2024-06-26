@@ -683,9 +683,13 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
 
                 if (paymentMedium.size() > 0)
                 {
-                    QString endUserFullname = paymentMedium["endUserFullName"].toString();
-                    QString endUserDocument = paymentMedium["endUserDocument"].toString();
-                    QString endUserId = paymentMedium["endUserId"].toString();
+                    if (paymentMedium.contains("id"))
+                    {
+                        payId = paymentMedium.value("id").toString();
+                    }
+                    endUserFullname = paymentMedium["endUserFullName"].toString();
+                    endUserDocument = paymentMedium["endUserDocument"].toString();
+                    endUserId = paymentMedium["endUserId"].toString();
 
                     if (paymentMedium.contains("pockets"))
                     {
@@ -1001,14 +1005,20 @@ int RecargaMifareScreen::removeCommasAndConvertToInt(const QString &priceString)
 
 void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
 {
-    QLineEdit *currentLineEdit = dynamic_cast<QLineEdit *>(focusWidget());
-    QString text = currentLineEdit->text();
-    int cursorPosition = currentLineEdit->cursorPosition();
+    qDebug() << "keyPressEvent called with key:" << event->key();
+
+    QWidget *focusedWidget = focusWidget();
+    qDebug() << "Focused widget:" << focusedWidget;
+
+    QLineEdit *currentLineEdit = dynamic_cast<QLineEdit *>(focusedWidget);
+    qDebug() << "Current line edit:" << currentLineEdit;
 
     switch (event->key())
     {
     case Qt::Key_Return:
     {
+        qDebug() << "Return key pressed";
+
         // Crear una instancia del diálogo de respuesta del servidor
         ResponseDialog *responseDialog = new ResponseDialog();
 
@@ -1029,15 +1039,19 @@ void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
         saleAmmount = saleAmmount.trimmed();
 
         // revisar variable que contiene el valor deseado para la recarga
-        qDebug() << "removeCommasAndConvertToInt + saleAmmount" << removeCommasAndConvertToInt(saleAmmount);
+        int saleAmountInt = removeCommasAndConvertToInt(saleAmmount);
+        qDebug() << "removeCommasAndConvertToInt + saleAmmount" << saleAmountInt;
 
         // Valor de la venta en el singleton
-        SessionManager::instance().setCurrentUnitPrice(removeCommasAndConvertToInt(saleAmmount));
+        SessionManager::instance().setCurrentMifareUnitPrice(saleAmountInt);
+
+        // paymentMediumId en el singleton
+        SessionManager::instance().setPaymentMediumId(payId);
 
         // Agregar texto adicional con información sobre la venta
-        QString additionalText = QString("Producto: Recarga Billetera\n") +
-                                 QString("Usuario: " + userName + "\n") +
-                                 QString("Documento: " + userDocument + "\n") +
+        QString additionalText = QString("Producto: Recarga Mifare\n") +
+                                 QString("Usuario: " + endUserFullname + "\n") +
+                                 QString("Documento: " + endUserDocument + "\n") +
                                  QString("Valor: ") + saleAmmount + " COP";
 
         responseDialog->setAdditionalText(additionalText);
@@ -1048,32 +1062,46 @@ void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
         responseDialog->setCancelButtonText("Cancelar");
 
         /*
-            Conectar la señal 'saleSuccess()' de responseDialog al slot 'emitSaleSuccessToMainWindow()'
-            que emite la señal 'showSaleScreen()' en MainWindow.
-
+            Conectar la señal 'mifareSaleSuccess()' de responseDialog al slot 'emitMifareSaleSuccessToMainWindow()'
+            de RecargaMifareScreen que emite la señal 'showMifareSaleScreen()' en MainWindow.
         */
-        connect(responseDialog, SIGNAL(saleSuccess()), this, SLOT(emitSaleSuccessToMainWindow()));
+
+        connect(responseDialog, SIGNAL(mifareSaleSuccess()), this, SLOT(emitMifareSaleSuccessToMainWindow()));
 
         // Mostrar el diálogo de respuesta del servidor
         responseDialog->exec();
 
         // Eliminar la instancia del diálogo después de que se haya cerrado
         delete responseDialog;
-        qDebug() << "Return key pressed ";
+        qDebug() << "Dialog closed and deleted";
         break;
     }
+    case Qt::Key_F2:
+        // Poner el foco en addressText
+        if (focusWidget() == addressText)
+            addressText->setFocus();
+        break;
     case Qt::Key_F1:
-        // Mover el cursor a la izquierda
-        if (cursorPosition > 0)
+        if (currentLineEdit)
         {
-            currentLineEdit->setCursorPosition(cursorPosition - 1);
+            int cursorPosition = currentLineEdit->cursorPosition();
+            // Mover el cursor a la izquierda
+            if (cursorPosition > 0)
+            {
+                currentLineEdit->setCursorPosition(cursorPosition - 1);
+            }
         }
         break;
     case Qt::Key_F4:
-        // Mover el cursor a la derecha
-        if (cursorPosition < text.size())
+        if (currentLineEdit)
         {
-            currentLineEdit->setCursorPosition(cursorPosition + 1);
+            int cursorPosition = currentLineEdit->cursorPosition();
+            QString text = currentLineEdit->text();
+            // Mover el cursor a la derecha
+            if (cursorPosition < text.size())
+            {
+                currentLineEdit->setCursorPosition(cursorPosition + 1);
+            }
         }
         break;
     default:
@@ -1082,13 +1110,13 @@ void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void RecargaMifareScreen::emitSaleSuccessToMainWindow()
+void RecargaMifareScreen::emitMifareSaleSuccessToMainWindow()
 {
-    qDebug() << "Widget Confirmación recarga billetera";
-    emit showSaleScreen();
+    qDebug() << "Widget Confirmación Recarga Mifare";
+    emit showMifareSaleScreen();
 }
 
-void RecargaMifareScreen::emitSaleErrorToMainWindow()
+void RecargaMifareScreen::emitMifareSaleErrorToMainWindow()
 {
 }
 
