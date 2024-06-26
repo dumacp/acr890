@@ -613,6 +613,54 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     readWriteCardStepZero(responseApdus);
                 }
             }
+            if (cardDataMap.contains("appliedMods"))
+            {
+                // QVariant appliedModsHandle = cardDataMap["appliedMods"];
+                // QVariantMap appliedModsMap = parseJsonObject(appliedModsHandle);
+                QVariantMap appliedModsMap = cardDataMap["appliedMods"].toMap();
+                if (appliedModsMap.contains("id"))
+                {
+                    QString id = appliedModsMap["id"].toString();
+                    qDebug() << "id" << id;
+                }
+                if (appliedModsMap.contains("ts"))
+                {
+                    QString ts = appliedModsMap["ts"].toString();
+                    qDebug() << "ts" << ts;
+                }
+                if (appliedModsMap.contains("applied"))
+                {
+                    QString applied = appliedModsMap["applied"].toString();
+                    qDebug() << "applied" << applied;
+                }
+
+                if (appliedModsMap.contains("payload"))
+                {
+                    QVariantMap payload = appliedModsMap["payload"].toMap();
+                    if (payload.contains("pocket"))
+                    {
+                        QString pocket = payload["pocket"].toString();
+                        qDebug() << "pocket" << pocket;
+                    }
+                    if (payload.contains("value"))
+                    {
+                        QString value = payload["value"].toString();
+                        qDebug() << "value" << value;
+                    }
+                    if (payload.contains("saleId"))
+                    {
+                        QString saleId = payload["saleId"].toString();
+                        qDebug() << "saleId" << saleId;
+                    }
+                    if (payload.contains("saleTime"))
+                    {
+                        QString saleTime = payload["saleTime"].toString();
+                        qDebug() << "saleTime" << saleTime;
+                    }
+                }
+                // Cerrar lectora
+                picc_close();
+            }
         }
     }
     else
