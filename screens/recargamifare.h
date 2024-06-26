@@ -23,12 +23,6 @@
 #include "../smartCard/AcsReader.h"
 #include "../smartCard/AcsException.h"
 
-/* QT_BEGIN_NAMESPACE
-class QLabel;
-class QLineEdit;
-class QTextEdit;
-QT_END_NAMESPACE */
-
 //! [class definition]
 
 class RecargaMifareScreen : public QWidget
@@ -38,7 +32,7 @@ class RecargaMifareScreen : public QWidget
 public:
     RecargaMifareScreen(QWidget *parent = 0);
     void rotateWindow();
-    /*     ~RecargaMifareScreen(); */
+    ~RecargaMifareScreen();
 
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -54,8 +48,6 @@ public slots:
     void
     handleSubmit();
     void handleTextChanged(const QString &);
-    /* void getCurrentBalance(const QString &); */
-    /* void handleNetworkReply(QNetworkReply *reply); */
     void executeSale(const QString &);
     QVariant parseJsonValue(const QString &jsonString);
     void updateSaldoLabel(int balance, const QString &response);
@@ -81,7 +73,6 @@ public slots:
 
 private:
     // Card
-    /* MifareClassic cCard_; */
     QString cardData;
     QString cardDataSecond;
     QString atrNumberConfig;

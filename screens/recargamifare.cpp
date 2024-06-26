@@ -170,6 +170,48 @@ RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     connect(addressText, SIGNAL(textChanged(const QString &)), this, SLOT(validateAddressText(const QString &)));
 }
 
+RecargaMifareScreen::~RecargaMifareScreen()
+{
+    cardData.clear();
+    cardDataSecond.clear();
+    atrNumberConfig.clear();
+    uuidConfig.clear();
+    stepNumber.clear();
+    sessionIdConfig.clear();
+    responseApdus.clear();
+
+    if (timer)
+    {
+        timer->stop();
+        delete timer;
+        timer = 0;
+    }
+
+    addressText->clear();
+    infoText->clear();
+    saldoLabel->clear();
+    valorLabel->clear();
+    saldoNuevoLabel->clear();
+    valorNuevoLabel->clear();
+    resultLabel->clear();
+
+    jwtToken.clear();
+    posId.clear();
+    userName.clear();
+    userId.clear();
+    userDocument.clear();
+    currentBalance.clear();
+    modifyingText.clear();
+
+    if (signalMapper)
+    {
+        delete signalMapper;
+        signalMapper = 0;
+    }
+
+    qDebug() << "RecargaMifareScreen has been reset.";
+}
+
 void RecargaMifareScreen::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -552,6 +594,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
         if (cardDataMap.contains("nextStep"))
         {
             QVariantMap nextStep = cardDataMap["nextStep"].toMap();
+            QVariantMap paymentMedium = cardDataMap["paymentMedium"].toMap();
             if (nextStep.size() > 0)
             {
                 if (nextStep.contains("step"))
@@ -561,7 +604,9 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     {
                         QString error = nextStep["error"].toString();
                         qDebug() << "error" << error;
-                        // picc_close();
+                        int balance = 666;
+                        QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, error));
+                        picc_close();
                     }
                 }
                 if (nextStep.contains("desc"))
@@ -618,8 +663,6 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                             apduResponse = _cReaderMifareScreen.parseResponseClassic(response, responseLength, mclassic);
                         }
 
-                        // ApduResponse apduResponse = _cReaderMifareScreen.parseResponse(response, responseLength, mplus);
-
                         ParsedApduResponse parsedResponse = _cReaderMifareScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 
                         responseApdus.push_back(parsedResponse);
@@ -634,6 +677,47 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     readWriteCardStepZero(responseApdus);
                 }
             }
+            else
+            {
+                qDebug() << "Lectura finalizada";
+
+                if (paymentMedium.size() > 0)
+                {
+                    QString endUserFullname = paymentMedium["endUserFullName"].toString();
+                    QString endUserDocument = paymentMedium["endUserDocument"].toString();
+                    QString endUserId = paymentMedium["endUserId"].toString();
+
+                    if (paymentMedium.contains("pockets"))
+                    {
+                        QVariantMap pockets = paymentMedium["pockets"].toMap();
+
+                        if (pockets.contains("REGULAR"))
+                        {
+                            QVariantMap regularPocket = pockets["REGULAR"].toMap();
+                            QString pocketType = regularPocket["type"].toString();
+                            int balance = regularPocket["balance"].toInt();
+                            int balanceBk = regularPocket["balanceBk"].toInt();
+                            qint64 timestamp = regularPocket["timestamp"].toLongLong();
+                            QString response = QString("no");
+                            QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, response));
+                        }
+
+                        if (pockets.contains("FINANCIAL_ENTITY"))
+                        {
+                            QVariantMap financialEntityPocket = pockets["FINANCIAL_ENTITY"].toMap();
+                            QString financialType = financialEntityPocket["type"].toString();
+                            int financialBalance = financialEntityPocket["balance"].toInt();
+                            int financialBalanceBk = financialEntityPocket["balanceBk"].toInt();
+                            qint64 financialTimestamp = financialEntityPocket["timestamp"].toLongLong();
+                        }
+                    }
+
+                    qDebug() << "endUserFullname:" << endUserFullname;
+                    qDebug() << "endUserDocument: " << endUserDocument;
+                    qDebug() << "endUserId: " << endUserId;
+                }
+                picc_close();
+            }
         }
     }
     else
@@ -641,6 +725,8 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
         qDebug() << "Error en la solicitud:" << reply->errorString();
         QByteArray errorData = reply->readAll();
         qDebug() << "Detalle del error:" << errorData;
+        int balance = 666;
+        QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, errorData));
     }
     // Liberar la memoria del objeto QNetworkReply
     reply->deleteLater();
@@ -757,54 +843,6 @@ QVariantList RecargaMifareScreen::parseJsonArray(const QString &jsonString)
     return jsonArray;
 }
 
-/* void RecargaMifareScreen::getCurrentBalance(const QString &text)
-{
-
-    // Validar que la longitud del texto sea de 10 dígitos
-    if (text.length() == 10 && text.toInt() != 0) // Asegúrate de que es un número válido
-    {
-        qDebug() << "Longitud válida de 10 dígitos.";
-        QString jwtToken = SessionManager::instance().getJwtToken();
-
-        // Obtener el valor de nameLine como el documento
-        QString document = nameLine->text();
-
-        qDebug() << "User Document." << document;
-        SessionManager::instance().setCurrentUserDocument(document);
-
-        // Convertir jwtToken a un objeto JSON utilizando stringToJson
-        QVariantMap jwtTokenJson = stringToJson(jwtToken);
-        QString accessToken = jwtTokenJson.value("access_token").toString();
-
-        qDebug()
-            << "jwt." << jwtToken;
-        qDebug() << "jwtTokenJson" << jwtTokenJson;
-        qDebug() << "accessToken" << accessToken;
-
-        // Crear la URL con el parámetro document
-        QString url = QString("https://fleet.nebulae.com.co/api/external-network-gateway/rest/endUser/findByDocument?documentType=CITIZENSHIP_CARD&document=%1").arg(document);
-
-        // Crear el manager de la red
-        QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-
-        // Conectar la señal de respuesta usando la sintaxis antigua
-        connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handleNetworkReply(QNetworkReply *)));
-
-        // Crear la solicitud HTTP
-        QNetworkRequest request;
-        request.setUrl(QUrl(url));
-        request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
-        request.setRawHeader("Accept", "application/json"); // Especificar que esperas una respuesta JSON
-
-        // Enviar la solicitud
-        manager->get(request);
-    }
-    else
-    {
-        qDebug() << "Longitud inválida, debe ser de 10 dígitos.";
-    }
-}
- */
 void RecargaMifareScreen::updateSaldoLabel(int balance, const QString &response)
 {
     // Crear el texto con HTML para estilizar el balance en rojo
@@ -836,60 +874,6 @@ void RecargaMifareScreen::restoreSaldoLabel()
     saldoLabel->setVisible(false);
 }
 
-/* void RecargaMifareScreen::handleNetworkReply(QNetworkReply *reply)
-{
-    if (reply->error() == QNetworkReply::NoError)
-    {
-        // Leer la respuesta
-        QByteArray responseData = reply->readAll();
-        qDebug() << "Response:" << responseData;
-
-        // Asignar la respuesta a la variable currentBalance
-        currentBalance = QString(responseData);
-
-        QVariantMap balanceJsonMap = parseJsonObject(currentBalance);
-        if (balanceJsonMap.contains("fullName"))
-            userName = balanceJsonMap["fullName"].toString();
-        userDocument = nameLine->text();
-
-        if (balanceJsonMap.contains("id"))
-        {
-            userId = balanceJsonMap["id"].toString();
-            SessionManager::instance().setCurrentUserId(userId);
-        }
-
-        if (balanceJsonMap.contains("wallet"))
-        {
-            QVariantMap wallet = balanceJsonMap["wallet"].toMap();
-            if (wallet.contains("pockets"))
-            {
-                QVariantMap pockets = wallet["pockets"].toMap();
-                if (pockets.contains("REGULAR"))
-                {
-                    QVariantMap regularPocket = pockets["REGULAR"].toMap();
-                    if (regularPocket.contains("balance"))
-                    {
-                        int balance = regularPocket["balance"].toInt();
-                        qDebug() << "Balance: " << balance;
-                        QString response = QString("no");
-                        QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, response));
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        qDebug() << "Error en la solicitud:" << reply->errorString();
-        QString response = QString("Error al obtener el saldo de este usuario");
-        int balance = 666;
-        QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, response));
-    }
-
-    // Liberar la memoria del objeto QNetworkReply
-    reply->deleteLater();
-}
- */
 void RecargaMifareScreen::validateAddressText(const QString &text)
 {
     QString modifiedText;
