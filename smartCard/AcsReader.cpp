@@ -361,7 +361,13 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
     qDebug() << "responseLength:" << responseLength;
     qDebug() << "response data:" << QByteArray::fromRawData(response, responseLength).toHex();
 
-    if (responseLength >= 2)
+    if (mplus && responseLength >= 1)
+    {
+        apduResponse.statusWord = (response[0] << 8) | 0x00;
+        apduResponse.data = QByteArray::fromRawData(response, responseLength);
+    }
+
+    else if (responseLength >= 2)
     {
         uint8_t highByte = static_cast<uint8_t>(response[responseLength - 2]);
         uint8_t lowByte = static_cast<uint8_t>(response[responseLength - 1]);
