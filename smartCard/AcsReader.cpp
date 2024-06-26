@@ -348,13 +348,12 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
         uint8_t highByte = static_cast<uint8_t>(response[responseLength - 2]);
         uint8_t lowByte = static_cast<uint8_t>(response[responseLength - 1]);
         apduResponse.statusWord = (highByte << 8) | lowByte;
+        apduResponse.data = QByteArray(response, responseLength);
 
         qDebug() << "Extracted statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
     }
 
     qDebug() << "Final apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
-
-    apduResponse.data = QByteArray(response, responseLength);
 
     qDebug() << "Final apduResponse.data:" << apduResponse.data.toHex();
 
