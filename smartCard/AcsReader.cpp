@@ -339,8 +339,8 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
 
     if (mplus && responseLength >= 1)
     {
-        apduResponse.statusWord = (static_cast<uint8_t>(response[0]) << 8) | 0x00;
-        apduResponse.data = QByteArray(response + 1, responseLength - 1); // Exclude the status word byte from the data
+        apduResponse.statusWord = (response[0] << 8) | 0x00;
+        apduResponse.data = QByteArray::fromRawData(response, responseLength);
 
         qDebug() << "Extracted statusWord for Mifare Plus (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
     }
