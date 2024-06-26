@@ -339,28 +339,26 @@ ApduResponse AcsReader::parseResponse(char *response, ulong responseLength, bool
 
     if (mplus && responseLength >= 1)
     {
-        apduResponse.statusWord = (response[0] << 8) | 0x00;
-        /*    apduResponse.data = QByteArray::fromRawData(response, responseLength); */
-        apduResponse.data = QByteArray(response, responseLength);
-    }
+        apduResponse.statusWord = (static_cast<uint8_t>(response[0]) << 8) | 0x00;
+        apduResponse.data = QByteArray(response + 1, responseLength - 1); // Exclude the status word byte from the data
 
-    if (responseLength >= 2)
+        qDebug() << "Extracted statusWord for Mifare Plus (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
+    }
+    else if (responseLength >= 2)
     {
         uint8_t highByte = static_cast<uint8_t>(response[responseLength - 2]);
         uint8_t lowByte = static_cast<uint8_t>(response[responseLength - 1]);
         apduResponse.statusWord = (highByte << 8) | lowByte;
-        apduResponse.data = QByteArray(response, responseLength);
+        apduResponse.data = QByteArray(response, responseLength - 2); // Exclude the status word bytes from the data
 
-        qDebug() << "Extracted statusWord (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
+        qDebug() << "Extracted statusWord for Mifare Classic (hex):" << QString::number(apduResponse.statusWord, 16).toUpper();
     }
-
     else
     {
-        qDebug() << "Shit happens";
+        qDebug() << "Invalid response length:" << responseLength;
     }
 
     qDebug() << "Final apduResponse.statusWord:" << QString::number(apduResponse.statusWord, 16).toUpper();
-
     qDebug() << "Final apduResponse.data:" << apduResponse.data.toHex();
 
     return apduResponse;
