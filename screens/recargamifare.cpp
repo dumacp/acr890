@@ -495,7 +495,7 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
                     }
 
                     // Validar si la tarjeta es Mifare Plus
-                    bool mplus;
+                    bool mplus = false;
                     if (atrNumberConfig.size() < 13 * 2)
                     {
                         qDebug() << "mplus" << atrNumberConfig.size();
@@ -552,7 +552,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     {
                         QString error = nextStep["error"].toString();
                         qDebug() << "error" << error;
-                        //picc_close();
+                        // picc_close();
                     }
                 }
                 if (nextStep.contains("desc"))
@@ -592,7 +592,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                         }
 
                         // Validar si la tarjeta es Mifare Plus
-                        bool mplus;
+                        bool mplus = false;
                         if (atrNumberConfig.size() < 13 * 2)
                         {
                             qDebug() << "mplus" << atrNumberConfig.size();
