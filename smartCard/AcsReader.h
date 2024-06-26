@@ -92,7 +92,8 @@ public:
     uint8_t statusIcc();
     uint8_t statusPicc();
 
-    ApduResponse parseResponse(char *response, ulong responseLength, bool mplus);
+    ApduResponse parseResponsePlus(char *response, ulong responseLength, bool mplus);
+    ApduResponse parseResponseClassic(char *response, ulong responseLength, bool mclassic);
     ParsedApduResponse convertToParsedApduResponse(const ApduResponse &apduResponse, const QString &apdu);
 
 private:

@@ -494,16 +494,25 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
                         continue;
                     }
 
+                    ApduResponse apduResponse;
+
                     // Validar si la tarjeta es Mifare Plus
                     bool mplus;
                     if (atrNumberConfig.size() < 13 * 2)
                     {
-                        qDebug() << "mplus" << atrNumberConfig.size();
-                        qDebug() << "13 * 2" << 13 * 2;
                         mplus = true;
+                        apduResponse = _cReaderMifareScreen.parseResponsePlus(response, responseLength, mplus);
                     }
 
-                    ApduResponse apduResponse = _cReaderMifareScreen.parseResponse(response, responseLength, mplus);
+                    // Validar si la tarjeta es Mifare Classic
+                    bool mclassic;
+                    if (atrNumberConfig.size() >= 13 * 2)
+                    {
+                        mclassic = true;
+                        apduResponse = _cReaderMifareScreen.parseResponseClassic(response, responseLength, mclassic);
+                    }
+
+                    // ApduResponse apduResponse = _cReaderMifareScreen.parseResponse(response, responseLength, mplus);
 
                     ParsedApduResponse parsedResponse = _cReaderMifareScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 
@@ -591,16 +600,25 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                             continue;
                         }
 
+                        ApduResponse apduResponse;
+
                         // Validar si la tarjeta es Mifare Plus
                         bool mplus;
                         if (atrNumberConfig.size() < 13 * 2)
                         {
-                            qDebug() << "mplus" << atrNumberConfig.size();
-                            qDebug() << "13 * 2" << 13 * 2;
                             mplus = true;
+                            apduResponse = _cReaderMifareScreen.parseResponsePlus(response, responseLength, mplus);
                         }
 
-                        ApduResponse apduResponse = _cReaderMifareScreen.parseResponse(response, responseLength, mplus);
+                        // Validar si la tarjeta es Mifare Classic
+                        bool mclassic;
+                        if (atrNumberConfig.size() >= 13 * 2)
+                        {
+                            mclassic = true;
+                            apduResponse = _cReaderMifareScreen.parseResponseClassic(response, responseLength, mclassic);
+                        }
+
+                        // ApduResponse apduResponse = _cReaderMifareScreen.parseResponse(response, responseLength, mplus);
 
                         ParsedApduResponse parsedResponse = _cReaderMifareScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 

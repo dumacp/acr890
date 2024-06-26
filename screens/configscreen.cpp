@@ -397,7 +397,7 @@ void ConfigScreen::handlePostNetworkReply(QNetworkReply *reply)
                         mplus = true;
                     }
 
-                    ApduResponse apduResponse = _cReaderConfigScreen.parseResponse(response, responseLength, mplus);
+                    ApduResponse apduResponse = _cReaderConfigScreen.parseResponsePlus(response, responseLength, mplus);
 
                     ParsedApduResponse parsedResponse = _cReaderConfigScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 
@@ -485,7 +485,7 @@ void ConfigScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                             mplus = true;
                         }
 
-                        ApduResponse apduResponse = _cReaderConfigScreen.parseResponse(response, responseLength, mplus);
+                        ApduResponse apduResponse = _cReaderConfigScreen.parseResponsePlus(response, responseLength, mplus);
 
                         ParsedApduResponse parsedResponse = _cReaderConfigScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 
