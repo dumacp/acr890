@@ -591,9 +591,12 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                             continue;
                         }
 
+                        // Validar si la tarjeta es Mifare Plus
                         bool mplus;
                         if (atrNumberConfig.size() < 13 * 2)
                         {
+                            qDebug() << "mplus" << atrNumberConfig.size();
+                            qDebug() << "13 * 2" << 13 * 2;
                             mplus = true;
                         }
 
