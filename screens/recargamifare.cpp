@@ -615,9 +615,11 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
             }
             if (cardDataMap.contains("appliedMods"))
             {
-                // QVariant appliedModsHandle = cardDataMap["appliedMods"];
-                // QVariantMap appliedModsMap = parseJsonObject(appliedModsHandle);
-                QVariantMap appliedModsMap = cardDataMap["appliedMods"].toMap();
+
+                QString appliedModsHandle = cardDataMap["appliedMods"].toString();
+
+                QVariantMap appliedModsMap = parseJsonObject(appliedModsHandle);
+
                 if (appliedModsMap.contains("id"))
                 {
                     QString id = appliedModsMap["id"].toString();
