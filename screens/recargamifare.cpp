@@ -617,7 +617,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                 }
             }
         }
-        else if (cardDataMap.contains("appliedMods"))
+        if (cardDataMap.contains("appliedMods"))
         {
 
             QString appliedModsHandle = cardDataMap["appliedMods"].toString();
@@ -665,7 +665,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                 }
             }
             // Cerrar lectora
-            picc_close();
+            // picc_close();
         }
     }
     else
