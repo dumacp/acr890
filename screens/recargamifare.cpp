@@ -617,7 +617,7 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                 }
             }
         }
-        if (cardDataMap.contains("appliedMods"))
+        else if (cardDataMap.contains("appliedMods"))
         {
 
             QString appliedModsHandle = cardDataMap["appliedMods"].toString();
