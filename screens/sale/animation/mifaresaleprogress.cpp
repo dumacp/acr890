@@ -73,8 +73,8 @@ MifareSaleProgress::MifareSaleProgress(QWidget *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(updateIcon()));
 
     // Configura el QTimer para manejar la finalización
-    /*  completeTimer = new QTimer(this);
-     connect(completeTimer, SIGNAL(timeout()), this, SLOT(handleCompleteTimer())); */
+    completeTimer = new QTimer(this);
+    connect(completeTimer, SIGNAL(timeout()), this, SLOT(handleCompleteTimer()));
 }
 
 MifareSaleProgress::~MifareSaleProgress()
@@ -141,9 +141,8 @@ void MifareSaleProgress::updateIcon()
     // Verificar si se ha alcanzado el último icono (100%)
     if (currentIndex == icons.size() - 1 && !completeTimerStarted)
     {
-        handleCompleteTimer();
-        /*   completeTimerStarted = true;
-          completeTimer->start(500); // Inicializa temporizador de 3 segundos */
+        completeTimerStarted = true;
+        completeTimer->start(500); // Inicializa temporizador de 3 segundos
     }
 }
 
@@ -596,7 +595,7 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
-    /*  textLabel->setText("Aplicando Cambios"); */
+    textLabel->setText("Aplicando Cambios");
 
     /*  animationStarted = true;
      timer->start(300); // Inicia la animación */
