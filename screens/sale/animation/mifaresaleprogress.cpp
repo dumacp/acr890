@@ -142,7 +142,7 @@ void MifareSaleProgress::updateIcon()
     if (currentIndex == icons.size() - 1 && !completeTimerStarted && startWriting)
     {
         completeTimerStarted = true;
-        startWriting = true;
+        // startWriting = true;
         completeTimer->start(500); // Inicializa temporizador de 3 segundos
     }
 }
