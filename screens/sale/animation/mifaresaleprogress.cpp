@@ -143,7 +143,7 @@ void MifareSaleProgress::updateIcon()
     {
         completeTimerStarted = true;
         startWriting = true;
-        completeTimer->start(3000); // Inicializa temporizador de 3 segundos
+        completeTimer->start(500); // Inicializa temporizador de 3 segundos
     }
 }
 
