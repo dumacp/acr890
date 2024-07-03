@@ -590,12 +590,11 @@ void MifareSaleProgress::piccReader()
 
 void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
 {
-
-    /*  currentIndex = 0;
-     completeTimerStarted = false;
-     timer->stop();
-     completeTimer->stop();
-     animationStarted = false; */
+    currentIndex = 0;
+    // completeTimerStarted = false;
+    timer->stop();
+    completeTimer->stop();
+    animationStarted = false;
     /*  textLabel->setText("Aplicando Cambios"); */
 
     /*  animationStarted = true;
