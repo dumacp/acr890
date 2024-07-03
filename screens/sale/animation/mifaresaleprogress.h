@@ -113,6 +113,8 @@ private:
     QString modifyingText;
     QString message;
 
+    bool startWriting;
+
     void PrintPage(const char *companyName, const char *tipoServicio, const char *sampleText, const char *dateTime);
 };
 

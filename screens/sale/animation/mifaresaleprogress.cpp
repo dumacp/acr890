@@ -33,7 +33,7 @@ extern int printer_open(void);
 extern int printer_setLineSpaceSM(unsigned char nr_step);
 
 MifareSaleProgress::MifareSaleProgress(QWidget *parent)
-    : QWidget(parent), currentIndex(0), completeTimerStarted(false), animationStarted(false)
+    : QWidget(parent), currentIndex(0), completeTimerStarted(false), animationStarted(false), startWriting(false)
 {
     // Inicializa los iconos
     icons << QPixmap(":/assets/icons/sale/0-percent.png")
@@ -94,6 +94,8 @@ MifareSaleProgress::~MifareSaleProgress()
     completeTimer->stop();
     animationStarted = false;
 
+    startWriting = false;
+
     jwtToken.clear();
     posId.clear();
     userName.clear();
@@ -128,6 +130,7 @@ void MifareSaleProgress::startAnimation()
     {
         animationStarted = true;
         timer->start(300); // Inicia la animación
+        startWriting = true;
     }
 }
 
@@ -137,7 +140,7 @@ void MifareSaleProgress::updateIcon()
     iconLabel->setPixmap(icons[currentIndex]);
 
     // Verificar si se ha alcanzado el último icono (100%)
-    if (currentIndex == icons.size() - 1 && !completeTimerStarted)
+    if (currentIndex == icons.size() - 1 && !completeTimerStarted && startWriting)
     {
         completeTimerStarted = true;
         completeTimer->start(3000); // Inicializa temporizador de 3 segundos
@@ -215,6 +218,8 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 
 void MifareSaleProgress::handleCompleteTimer()
 {
+    startWriting = false;
+
     currentIndex = 0;
     completeTimerStarted = false;
     timer->stop();
@@ -518,7 +523,7 @@ void MifareSaleProgress::PrintPage(const char *companyName, const char *tipoServ
 void MifareSaleProgress::piccReader()
 {
 
-    textLabel->setText("Aplicando Cambios ...");
+    textLabel->setText("Aplicando Cambios");
 
     animationStarted = true;
     timer->start(300); // Inicia la animación
