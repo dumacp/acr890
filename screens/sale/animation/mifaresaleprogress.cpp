@@ -139,7 +139,7 @@ void MifareSaleProgress::updateIcon()
     iconLabel->setPixmap(icons[currentIndex]);
 
     // Verificar si se ha alcanzado el último icono (100%)
-    if (currentIndex == icons.size() - 1 && !completeTimerStarted && !startWriting)
+    if (currentIndex == icons.size() - 1 && !completeTimerStarted && startWriting)
     {
         completeTimerStarted = true;
         startWriting = true;
