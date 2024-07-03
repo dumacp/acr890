@@ -218,7 +218,7 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 void MifareSaleProgress::handleCompleteTimer()
 {
     currentIndex = 0;
-    // completeTimerStarted = false;
+    completeTimerStarted = false;
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
@@ -591,7 +591,7 @@ void MifareSaleProgress::piccReader()
 void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
 {
     currentIndex = 0;
-    // completeTimerStarted = false;
+    completeTimerStarted = false;
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
