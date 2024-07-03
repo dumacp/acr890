@@ -144,7 +144,7 @@ void MifareSaleProgress::updateIcon()
     {
         completeTimerStarted = true;
         startWriting = false;
-        completeTimer->start(200); // Inicializa temporizador de 3 segundos
+        completeTimer->start(400); // Inicializa temporizador de 3 milisegundos
     }
 }
 
@@ -598,8 +598,8 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     completeTimer->stop();
     animationStarted = true;
 
-    timer->start(150); // Inicia la animación
-    textLabel->setText("Aplicando Cambios ...");
+    timer->start(100); // Inicia la animación
+    textLabel->setText("Aplicando Cambios \n . . .");
 
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
