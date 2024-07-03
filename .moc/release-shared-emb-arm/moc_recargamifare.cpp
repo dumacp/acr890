@@ -43,15 +43,15 @@ static const uint qt_meta_data_RecargaMifareScreen[] = {
      292,  250,  284,   20, 0x0a,
      321,   20,   20,   20, 0x0a,
      357,   20,   20,   20, 0x0a,
-     370,   20,   20,   20, 0x0a,
-     394,  385,   20,   20, 0x0a,
-     431,  425,   20,   20, 0x0a,
-     484,  470,   20,   20, 0x0a,
-     539,  425,   20,   20, 0x0a,
-     594,   95,  582,   20, 0x0a,
-     632,   95,  619,   20, 0x0a,
-     656,  470,  284,   20, 0x0a,
-     710,   95,  582,   20, 0x0a,
+     379,  370,   20,   20, 0x0a,
+     416,  410,   20,   20, 0x0a,
+     469,  455,   20,   20, 0x0a,
+     524,  410,   20,   20, 0x0a,
+     579,   95,  567,   20, 0x0a,
+     617,   95,  604,   20, 0x0a,
+     641,  455,  284,   20, 0x0a,
+     695,   95,  567,   20, 0x0a,
+     717,   20,   20,   20, 0x0a,
 
        0        // eod
 };
@@ -66,7 +66,7 @@ static const char qt_meta_stringdata_RecargaMifareScreen[] = {
     "text\0validateAddressText(QString)\0"
     "QString\0extractNumericValue(QString)\0"
     "emitMifareSaleSuccessToMainWindow()\0"
-    "piccReader()\0checkForCard()\0atr,uuid\0"
+    "piccReader()\0atr,uuid\0"
     "readWriteCard(QString,QString)\0reply\0"
     "handlePostNetworkReply(QNetworkReply*)\0"
     "responseApdus\0"
@@ -75,7 +75,7 @@ static const char qt_meta_stringdata_RecargaMifareScreen[] = {
     "QVariantMap\0parseJsonObject(QString)\0"
     "QVariantList\0parseJsonArray(QString)\0"
     "generarResponseApdus(std::vector<ParsedApduResponse>)\0"
-    "stringToJson(QString)\0"
+    "stringToJson(QString)\0cleanSomeVariables()\0"
 };
 
 void RecargaMifareScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -98,19 +98,19 @@ void RecargaMifareScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, 
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
         case 9: _t->emitMifareSaleSuccessToMainWindow(); break;
         case 10: _t->piccReader(); break;
-        case 11: _t->checkForCard(); break;
-        case 12: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
-        case 13: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 14: _t->readWriteCardStepZero((*reinterpret_cast< std::vector<ParsedApduResponse>(*)>(_a[1]))); break;
-        case 15: _t->handlePostNetworkReplyZero((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 16: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 11: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 12: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 13: _t->readWriteCardStepZero((*reinterpret_cast< std::vector<ParsedApduResponse>(*)>(_a[1]))); break;
+        case 14: _t->handlePostNetworkReplyZero((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 15: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
-        case 17: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 16: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = _r; }  break;
-        case 18: { QString _r = _t->generarResponseApdus((*reinterpret_cast< const std::vector<ParsedApduResponse>(*)>(_a[1])));
+        case 17: { QString _r = _t->generarResponseApdus((*reinterpret_cast< const std::vector<ParsedApduResponse>(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 19: { QVariantMap _r = _t->stringToJson((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 18: { QVariantMap _r = _t->stringToJson((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
+        case 19: _t->cleanSomeVariables(); break;
         default: ;
         }
     }

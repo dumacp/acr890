@@ -52,14 +52,14 @@ extern "C"
 RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     : QWidget(parent),
       timer(new QTimer(this)),
-      addressText(0),
       submitButton(0),
-      infoText(0),
       saldoLabel(0),
       valorLabel(0),
       saldoNuevoLabel(0),
       valorNuevoLabel(0),
-      resultLabel(0)
+      resultLabel(0),
+      infoText(new QLabel("Ubica la tarjeta en la lectora para continuar", this)),
+      addressText(new QLineEdit("0 COP", this))
 {
 
     // Icono en la parte izquierda de la pantalla
@@ -82,7 +82,7 @@ RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     titleLabel->setWordWrap(true); // Permitir el ajuste de línea automático si el texto es demasiado largo
 
-    addressText = new QLineEdit("0 COP"); // Inicializa addressText y asígnalo a la variable miembro
+    // addressText = new QLineEdit("0 COP"); // Inicializa addressText y asígnalo a la variable miembro
 
     // QLineEdit *addressText = new QLineEdit("20.000 COP");
     addressText->setPlaceholderText("Ingrese el valor de su recarga");
@@ -100,7 +100,7 @@ RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     resultLabel = new QLabel;
 
     // Crear el QLabel para el texto de información
-    infoText = new QLabel("Ubica la tarjeta en la lectora para continuar", this);
+    // infoText = new QLabel("Ubica la tarjeta en la lectora para continuar", this);
     infoText->setFont(QFont("Arial", 14));
 
     // Establece un ancho máximo
@@ -208,68 +208,6 @@ RecargaMifareScreen::~RecargaMifareScreen()
     modifyingText.clear();
 }
 
-void RecargaMifareScreen::checkForCard()
-{
-    int picc_rtn;
-    int rtn;
-    int i;
-    char uid_buf[10];
-    unsigned char atr[64];
-    unsigned char atr_len;
-
-    struct picc_card picc_card_info;
-    char picc_uid_str[64];
-
-    picc_rtn = picc_open();
-    if (picc_rtn == 0)
-    {
-        qDebug() << "Tarjeta Detectada";
-        memset(atr, 0, sizeof(atr));
-        rtn = picc_power_on(atr, &atr_len);
-        if (rtn == 0)
-        {
-            // Crear un stringstream para construir la cadena ATR Y UUID
-            std::stringstream atrValue;
-            std::stringstream uuidValue;
-
-            printf("ATR = ");
-            for (i = 0; i < atr_len; i++)
-            {
-                printf("0x%02x ", atr[i]);
-                atrValue << std::hex << std::setw(2) << std::setfill('0') << (int)atr[i]; // Almacenar cada elemento del array atr[] como un unico string - Así obtenemos el ATR
-            }
-            printf("\n");
-
-            memset(picc_uid_str, 0, sizeof(picc_uid_str));
-            rtn = picc_poll_card(&picc_card_info);
-            printf("UID = ");
-            for (i = 0; i < picc_card_info.uidlength; i++)
-            {
-                printf("0x%02x ", picc_card_info.uid[i]);                                                 // Almacenar cada elemento del array picc_card_info.uid[] como un unico string - Así obtenemos el UID
-                uuidValue << std::hex << std::setw(2) << std::setfill('0') << (int)picc_card_info.uid[i]; // Almacenar cada elemento del array picc_card_info.uid[] como un unico string - Así obtenemos el UUID
-                sprintf(uid_buf, "0x%02x ", picc_card_info.uid[i]);
-                strcat(picc_uid_str, uid_buf);
-            }
-            printf("\n");
-
-            // Almacenar el atrValue y uuidValue
-            std::string atrStd = atrValue.str();
-            std::string uuidStd = uuidValue.str();
-
-            atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
-            uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
-
-            // Executar lectura-escritura FLEET
-            readWriteCard(atrNumberConfig, uuidConfig.toUpper());
-        }
-    }
-    else
-    {
-        qDebug() << "No se detectó ninguna tarjeta";
-        // picc_close();
-    }
-}
-
 void RecargaMifareScreen::piccReader()
 {
     int picc_rtn;
@@ -331,6 +269,10 @@ void RecargaMifareScreen::piccReader()
 
         atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
         uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
+
+        // Set Mifare Sale ATR & UUID as singleton members
+        SessionManager::instance().setMifareSaleATR(atrNumberConfig);
+        SessionManager::instance().setMifareSaleUUID(uuidConfig);
 
         // Ejecutar lectura-escritura FLEET
         readWriteCard(atrNumberConfig, uuidConfig.toUpper());
@@ -607,6 +549,12 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                 if (nextStep.contains("step"))
                 {
                     QString step = nextStep["step"].toString();
+                    if (step.toInt() > 0)
+                    {
+                        // Desactivar el botón para evitar múltiples clics
+                        // submitButton->setEnabled(false);
+                        submitButton->setText("Escribiendo ...");
+                    }
                     if (step.isNull())
                     {
                         QString error = nextStep["error"].toString();
@@ -1074,6 +1022,9 @@ void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
         // paymentMediumId en el singleton
         SessionManager::instance().setPaymentMediumId(payId);
 
+        // Habilitar la venta tipo Mifare
+        SessionManager::instance().setExecuteMifareSale(true);
+
         // Agregar texto adicional con información sobre la venta
         QString additionalText = QString("Producto: Recarga Mifare\n") +
                                  QString("Usuario: " + endUserFullname + "\n") +
@@ -1139,6 +1090,12 @@ void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
 void RecargaMifareScreen::emitMifareSaleSuccessToMainWindow()
 {
     emit showMifareSaleScreen();
+}
+
+void RecargaMifareScreen::cleanSomeVariables()
+{
+    addressText->setText("0 COP");
+    infoText = new QLabel("Ubica la tarjeta en la lectora para continuar", this);
 }
 
 // Data parser

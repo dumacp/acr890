@@ -29,8 +29,6 @@ private slots:
 private:
     QLabel *iconLabel;
     QLabel *textLabel;
-    QPushButton *button1;
-    QPushButton *button2;
 };
 
 #endif // MIFARESALESUCCESS_H

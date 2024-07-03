@@ -15,6 +15,8 @@
 #include <QGraphicsOpacityEffect>
 #include <stdio.h>
 
+#include "screens/sessionmanager.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       currentIndex(0)
@@ -121,6 +123,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Conectar la señal 'backToMifareScreen()' de MifareSaleError con el slot 'changeBackToRecargaMifare()' de mainwindow
     connect(mifareSaleError, SIGNAL(backToMifareScreen()), this, SLOT(changeBackToRecargaMifare()));
+
+    // Conectar la señal 'backToMifareSaleProgress()' de MifareSaleError con el slot 'changeToMifareSaleScreen()' de mainwindow
+    connect(mifareSaleError, SIGNAL(backToMifareSaleProgressScreen()), this, SLOT(changeToMifareSaleScreen()));
 
     // Conectar la señal 'authFailed()' de loginScreen con el slot 'setNotAuthenticated()' de mainwindow
     connect(loginScreen, SIGNAL(authFailed()), this, SLOT(setNotAuthenticated()));
@@ -340,8 +345,7 @@ void MainWindow::changeToMifareSaleScreen()
     navigationBarContainer->setVisible(false);
     stackedWidget->setCurrentWidget(mifareSaleProgress);
     mifareSaleProgress->startAnimation();
-    qDebug()
-        << "Cambiar a mifareSaleProgress" << "todo ok";
+    qDebug() << "Cambiar a mifareSaleProgress" << "todo ok";
 }
 
 void MainWindow::changeToMifareSaleSuccessScreen()
@@ -353,6 +357,9 @@ void MainWindow::changeToMifareSaleSuccessScreen()
 void MainWindow::changeToMifareSaleErrorScreen()
 {
     stackedWidget->setCurrentWidget(mifareSaleError);
+    QString text = SessionManager::instance().getMifareSaleErrorMessage();
+    qDebug() << "text" << text;
+    mifareSaleError->handleChangeText(text);
     qDebug() << "Cambiar a mifareSaleError" << "todo ok";
 }
 
@@ -361,6 +368,7 @@ void MainWindow::changeBackToRecargaMifare()
     notificationBarContainer->setVisible(true);
     navigationBarContainer->setVisible(true);
     stackedWidget->setCurrentWidget(recargaMifareScreen);
+    recargaMifareScreen->cleanSomeVariables();
     qDebug() << "Cambiar a RecargaMifare" << "todo ok";
 }
 

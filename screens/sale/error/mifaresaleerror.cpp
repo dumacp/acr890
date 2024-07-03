@@ -1,8 +1,11 @@
 #include "mifaresaleerror.h"
+#include "../../sessionmanager.h"
+
 #include <QFont>
 
 MifareSaleError::MifareSaleError(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      additionalTextLabel(new QLabel("Intenta leer la tarjeta nuevamente", this)) // Inicialización del QLabel
 {
     // Inicializa el icono
     QPixmap icon(":/assets/icons/sale/interface-essential-skull-1.png"); // Actualiza el icono a uno de error
@@ -28,7 +31,6 @@ MifareSaleError::MifareSaleError(QWidget *parent)
     iconTextLayout->addWidget(iconLabel, 0, Qt::AlignCenter);
 
     // Agrega el texto adicional debajo del icono
-    QLabel *additionalTextLabel = new QLabel("Intenta leer la tarjeta nuevamente", this);
     additionalTextLabel->setAlignment(Qt::AlignCenter);
     iconTextLayout->addWidget(additionalTextLabel, 0, Qt::AlignCenter);
 
@@ -36,16 +38,20 @@ MifareSaleError::MifareSaleError(QWidget *parent)
     mainLayout->addLayout(iconTextLayout);
 
     // Configura los botones
-    QPushButton *button2 = new QPushButton("Salir", this);
 
-    // Conectar la señal 'clicked()' del boton salir al slot 'backToMifareScreenSlot' para regresar a RecargaMifareScreen
-    connect(button2, SIGNAL(clicked()), this, SLOT(backToMifareScreenSlot()));
+    QPushButton *buttonTry = new QPushButton("Intenta nuevamente", this);
+    QPushButton *buttonBack = new QPushButton("Salir", this);
+
+    connect(buttonBack, SIGNAL(clicked()), this, SLOT(backToMifareScreenSlot()));
+    connect(buttonTry, SIGNAL(clicked()), this, SLOT(backToMifareSaleProgressSlot()));
 
     // Establecer el tamaño fijo de los botones
-    button2->setFixedWidth(222);
-    button2->setFixedHeight(50);
+    buttonTry->setFixedWidth(222);
+    buttonTry->setFixedHeight(50);
+    buttonBack->setFixedWidth(222);
+    buttonBack->setFixedHeight(50);
 
-    // Establecer el estilo de los botones
+    // Establecer el estilo
     QString buttonStyle = "QPushButton {"
                           "    background-color: white;"
                           "    border: 1px solid black;"
@@ -58,16 +64,29 @@ MifareSaleError::MifareSaleError(QWidget *parent)
                           "QPushButton:pressed {"
                           "    background-color: gray;"
                           "}";
-    button2->setStyleSheet(buttonStyle);
+    buttonTry->setStyleSheet(buttonStyle);
+    buttonBack->setStyleSheet(buttonStyle);
 
     // Agrega los botones al layout principal
-    mainLayout->addWidget(button2, 0, Qt::AlignCenter);
+    mainLayout->addWidget(buttonTry);
+    mainLayout->addWidget(buttonBack);
 
     // Configura el layout principal como el diseño del widget
     setLayout(mainLayout);
 }
 
+void MifareSaleError::handleChangeText(const QString &text)
+{
+    additionalTextLabel->setText(text);
+}
+
 void MifareSaleError::backToMifareScreenSlot()
 {
     emit backToMifareScreen();
+}
+
+void MifareSaleError::backToMifareSaleProgressSlot()
+{
+    // SessionManager::instance().setExecuteMifareSale(false);
+    emit backToMifareSaleProgressScreen();
 }

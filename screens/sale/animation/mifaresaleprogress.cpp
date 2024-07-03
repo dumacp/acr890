@@ -219,114 +219,124 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 
 void MifareSaleProgress::handleCompleteTimer()
 {
-    currentIndex = 0;
-    completeTimerStarted = false;
-    startWriting = false;
-    timer->stop();
-    completeTimer->stop();
-    animationStarted = false;
+    bool executeMifareSale = SessionManager::instance().getExecuteMifareSale();
+    qDebug() << "La validación es correcta?: " << executeMifareSale;
 
-    QString posData = SessionManager::instance().getPointOfSaleData();
-    // Obtener el accessToken actual
-    QString jwtToken = SessionManager::instance().getJwtToken();
-    QVariantMap jwtTokenJson = stringToJson(jwtToken);
-    QString accessToken = jwtTokenJson.value("access_token").toString();
-
-    // Verificar si existe la llave "products"
-    QVariantList pointOfSaleDataList = parseJsonArray(posData);
-
-    if (!pointOfSaleDataList.isEmpty())
+    if (executeMifareSale)
     {
-        QVariantMap pointOfSaleData = pointOfSaleDataList.first().toMap();
+        currentIndex = 0;
+        completeTimerStarted = false;
+        startWriting = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
 
-        if (pointOfSaleData.contains("id"))
+        QString posData = SessionManager::instance().getPointOfSaleData();
+        // Obtener el accessToken actual
+        QString jwtToken = SessionManager::instance().getJwtToken();
+        QVariantMap jwtTokenJson = stringToJson(jwtToken);
+        QString accessToken = jwtTokenJson.value("access_token").toString();
+
+        // Verificar si existe la llave "products"
+        QVariantList pointOfSaleDataList = parseJsonArray(posData);
+
+        if (!pointOfSaleDataList.isEmpty())
         {
-            posId = pointOfSaleData.value("id").toString();
+            QVariantMap pointOfSaleData = pointOfSaleDataList.first().toMap();
+
+            if (pointOfSaleData.contains("id"))
+            {
+                posId = pointOfSaleData.value("id").toString();
+            }
         }
+
+        QString pointOfSaleId = posId;
+        QString productId = "013624e8-75b9-4ea6-b35a-3d69af074548";
+
+        // Obtener la lista de productos directamente del QVariantMap
+        QVariantList productList = pointOfSaleData["products"].toList();
+
+        // Recorrer la lista de productos
+        // Convierte la cadena JSON en un mapa QVariant
+        QVariantMap jsonData = parseJson(posData);
+
+        // Crear el manager de la red
+        QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+        // Conectar la señal de respuesta usando la sintaxis antigua
+        connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReplySale(QNetworkReply *)));
+
+        // Crear la solicitud HTTP
+        QNetworkRequest request;
+        request.setUrl(QUrl("https://fleet.nebulae.com.co/api/external-network-gateway/rest/sale/execute"));
+        request.setRawHeader("accept", "application/json"); // Especificar el tipo de contenido como JSON
+        request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
+        request.setRawHeader("Content-Type", "application/json"); // Especificar el tipo de contenido como JSON
+
+        // Crear el cuerpo de la solicitud utilizando variables
+
+        int qty = 1;
+        int unitPrice = SessionManager::instance().getCurrentMifareUnitPrice();
+        QString paymentMediumId = SessionManager::instance().getPaymentMediumId();
+        QString terminalKey = "001466";
+        QString externalSystemRefId = "";
+        double longitude = -75.593601;
+        double latitude = 6.214901;
+
+        QString jsonString = QString(
+                                 "{"
+                                 "\"ProductLines\": ["
+                                 "{"
+                                 "\"id\": \"%1\","
+                                 "\"qty\": %2,"
+                                 "\"unitPrice\": %3,"
+                                 "\"paymentMediumId\": \"%4\""
+                                 "}"
+                                 "],"
+                                 "\"PaymentLines\": ["
+                                 "{"
+                                 "\"type\": \"CASH\","
+                                 "\"amount\": %5"
+                                 "}"
+                                 "],"
+                                 "\"pointOfSaleId\": \"%6\","
+                                 "\"terminalKey\": \"%7\","
+                                 "\"externalSystemRefId\": \"%8\","
+                                 "\"coordinates\": [ %9, %10 ]"
+                                 "}")
+                                 .arg(productId)
+                                 .arg(qty)
+                                 .arg(unitPrice)
+                                 .arg(paymentMediumId)
+                                 .arg(unitPrice)
+                                 .arg(pointOfSaleId)
+                                 .arg(terminalKey)
+                                 .arg(externalSystemRefId)
+                                 .arg(longitude)
+                                 .arg(latitude);
+
+        QByteArray postData = jsonString.toUtf8();
+
+        qDebug() << "unitPrice" << unitPrice;
+        qDebug() << "qty" << qty;
+        qDebug() << "unitPrice" << unitPrice;
+        qDebug() << "paymentMediumId" << paymentMediumId;
+        qDebug() << "pointOfSaleId" << pointOfSaleId;
+        qDebug() << "currentUnitPrice" << currentUnitPrice;
+        qDebug() << "terminalKey" << terminalKey;
+        qDebug() << "externalSystemRefId" << externalSystemRefId;
+        qDebug() << "externalSystemRefId" << externalSystemRefId;
+        qDebug() << "longitude" << longitude;
+        qDebug() << "latitude" << latitude;
+        qDebug() << "posData" << postData;
+
+        // Enviar la solicitud POST
+        manager->post(request, postData);
     }
-
-    QString pointOfSaleId = posId;
-    QString productId = "013624e8-75b9-4ea6-b35a-3d69af074548";
-
-    // Obtener la lista de productos directamente del QVariantMap
-    QVariantList productList = pointOfSaleData["products"].toList();
-
-    // Recorrer la lista de productos
-    // Convierte la cadena JSON en un mapa QVariant
-    QVariantMap jsonData = parseJson(posData);
-
-    // Crear el manager de la red
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-
-    // Conectar la señal de respuesta usando la sintaxis antigua
-    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReplySale(QNetworkReply *)));
-
-    // Crear la solicitud HTTP
-    QNetworkRequest request;
-    request.setUrl(QUrl("https://fleet.nebulae.com.co/api/external-network-gateway/rest/sale/execute"));
-    request.setRawHeader("accept", "application/json"); // Especificar el tipo de contenido como JSON
-    request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
-    request.setRawHeader("Content-Type", "application/json"); // Especificar el tipo de contenido como JSON
-
-    // Crear el cuerpo de la solicitud utilizando variables
-
-    int qty = 1;
-    int unitPrice = SessionManager::instance().getCurrentMifareUnitPrice();
-    QString paymentMediumId = SessionManager::instance().getPaymentMediumId();
-    QString terminalKey = "001466";
-    QString externalSystemRefId = "";
-    double longitude = -75.593601;
-    double latitude = 6.214901;
-
-    QString jsonString = QString(
-                             "{"
-                             "\"ProductLines\": ["
-                             "{"
-                             "\"id\": \"%1\","
-                             "\"qty\": %2,"
-                             "\"unitPrice\": %3,"
-                             "\"paymentMediumId\": \"%4\""
-                             "}"
-                             "],"
-                             "\"PaymentLines\": ["
-                             "{"
-                             "\"type\": \"CASH\","
-                             "\"amount\": %5"
-                             "}"
-                             "],"
-                             "\"pointOfSaleId\": \"%6\","
-                             "\"terminalKey\": \"%7\","
-                             "\"externalSystemRefId\": \"%8\","
-                             "\"coordinates\": [ %9, %10 ]"
-                             "}")
-                             .arg(productId)
-                             .arg(qty)
-                             .arg(unitPrice)
-                             .arg(paymentMediumId)
-                             .arg(unitPrice)
-                             .arg(pointOfSaleId)
-                             .arg(terminalKey)
-                             .arg(externalSystemRefId)
-                             .arg(longitude)
-                             .arg(latitude);
-
-    QByteArray postData = jsonString.toUtf8();
-
-    qDebug() << "unitPrice" << unitPrice;
-    qDebug() << "qty" << qty;
-    qDebug() << "unitPrice" << unitPrice;
-    qDebug() << "paymentMediumId" << paymentMediumId;
-    qDebug() << "pointOfSaleId" << pointOfSaleId;
-    qDebug() << "currentUnitPrice" << currentUnitPrice;
-    qDebug() << "terminalKey" << terminalKey;
-    qDebug() << "externalSystemRefId" << externalSystemRefId;
-    qDebug() << "externalSystemRefId" << externalSystemRefId;
-    qDebug() << "longitude" << longitude;
-    qDebug() << "latitude" << latitude;
-    qDebug() << "posData" << postData;
-
-    // Enviar la solicitud POST
-    manager->post(request, postData);
+    else
+    {
+        piccReader();
+    }
 }
 
 void MifareSaleProgress::handlePostNetworkReplySale(QNetworkReply *reply)
@@ -342,6 +352,18 @@ void MifareSaleProgress::handlePostNetworkReplySale(QNetworkReply *reply)
         qDebug() << "Error en la solicitud:" << reply->errorString();
         QByteArray errorData = reply->readAll();
         qDebug() << "Detalle del error:" << errorData;
+
+        currentIndex = 0;
+        completeTimerStarted = false;
+        startWriting = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
+        textLabel->setText("Procesando");
+
+        // Allow Mifare Sale
+        SessionManager::instance().setExecuteMifareSale(true);
+        SessionManager::instance().setMifareSaleErrorMessage(QString("Error en el servidor"));
         emit progressMifareDoneError();
     }
 
@@ -541,6 +563,16 @@ void MifareSaleProgress::piccReader()
     else
     {
         qDebug() << "picc_open failed!";
+
+        currentIndex = 0;
+        completeTimerStarted = false;
+        startWriting = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
+        textLabel->setText("Procesando");
+
+        SessionManager::instance().setMifareSaleErrorMessage(QString("Error en la lectora, vuelve a colocar \n la tarjeta"));
         emit progressMifareDoneError();
         return;
     }
@@ -580,14 +612,45 @@ void MifareSaleProgress::piccReader()
         atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
         uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
 
-        // Ejecutar lectura-escritura FLEET
-        readWriteCard(atrNumberConfig, uuidConfig.toUpper());
+        QString saleMifareUUID = SessionManager::instance().getMifareSaleUUID();
+        if (saleMifareUUID == uuidConfig)
+        {
+            // Ejecutar lectura-escritura FLEET
+            readWriteCard(atrNumberConfig, uuidConfig.toUpper());
+        }
+        else
+        {
+            picc_close();
+
+            currentIndex = 0;
+            completeTimerStarted = false;
+            startWriting = false;
+            timer->stop();
+            completeTimer->stop();
+            animationStarted = false;
+            textLabel->setText("Procesando");
+
+            SessionManager::instance().setMifareSaleErrorMessage(QString("La tarjeta es diferente a la \n que estabas recargando"));
+            emit progressMifareDoneError();
+            return;
+        }
     }
     else
     {
         qDebug() << "picc_power_on failed!";
         picc_close();
+
+        currentIndex = 0;
+        completeTimerStarted = false;
+        startWriting = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
+        textLabel->setText("Procesando");
+
+        SessionManager::instance().setMifareSaleErrorMessage(QString("Error en la lectora, vuelve a colocar \n la tarjeta"));
         emit progressMifareDoneError();
+        return;
     }
 }
 
@@ -722,6 +785,7 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
                         animationStarted = false;
                         textLabel->setText("Procesando");
 
+                        SessionManager::instance().setMifareSaleErrorMessage(QString("Error en la transmission"));
                         emit progressMifareDoneError();
                         return;
                     }
@@ -777,6 +841,7 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
         textLabel->setText("Procesando");
 
         // Manejar Error
+        SessionManager::instance().setMifareSaleErrorMessage(QString("Error en el servidor"));
         emit progressMifareDoneError();
     }
     // Liberar la memoria del objeto QNetworkReply
@@ -890,7 +955,9 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                         textLabel->setText("Procesando");
 
                         // Manejar Error
+                        SessionManager::instance().setMifareSaleErrorMessage(error);
                         emit progressMifareDoneError();
+                        return;
                     }
                 }
                 if (nextStep.contains("desc"))
@@ -938,6 +1005,7 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                             textLabel->setText("Procesando");
 
                             // Manejar Error
+                            SessionManager::instance().setMifareSaleErrorMessage(QString("Error en la transmission"));
                             emit progressMifareDoneError();
                             return;
                         }
@@ -1002,14 +1070,14 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                             qDebug() << "Saldo Actualizado: " << balance;
                         }
 
-                        if (pockets.contains("FINANCIAL_ENTITY"))
+                        /* if (pockets.contains("FINANCIAL_ENTITY"))
                         {
                             QVariantMap financialEntityPocket = pockets["FINANCIAL_ENTITY"].toMap();
                             QString financialType = financialEntityPocket["type"].toString();
                             int financialBalance = financialEntityPocket["balance"].toInt();
                             int financialBalanceBk = financialEntityPocket["balanceBk"].toInt();
                             qint64 financialTimestamp = financialEntityPocket["timestamp"].toLongLong();
-                        }
+                        } */
                     }
 
                     qDebug() << "endUserFullname:" << endUserFullname;
@@ -1027,8 +1095,13 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                     SessionManager::instance().setMessageToPrint(message);
                 }
 
+                // Close reader
                 picc_close();
+
+                // Invoice
                 runPrinter(message);
+
+                // Clean state
                 currentIndex = 0;
                 completeTimerStarted = false;
                 startWriting = false;
@@ -1036,6 +1109,11 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                 completeTimer->stop();
                 animationStarted = false;
                 textLabel->setText("Procesando");
+
+                // Allow Mifare Sale
+                SessionManager::instance().setExecuteMifareSale(true);
+
+                // Success Screen
                 emit progressMifareDoneSuccess();
             }
         }
@@ -1058,6 +1136,7 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
         textLabel->setText("Procesando");
 
         // Manejgar error
+        SessionManager::instance().setMifareSaleErrorMessage(QString("Error en el servidor"));
         emit progressMifareDoneError();
     }
     // Liberar la memoria del objeto QNetworkReply

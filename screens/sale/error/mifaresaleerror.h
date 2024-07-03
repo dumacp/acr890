@@ -16,17 +16,20 @@ class MifareSaleError : public QWidget
 public:
     MifareSaleError(QWidget *parent = 0);
     void startAnimation();
+    void handleChangeText(const QString &text);
 
 signals:
     void backToMifareScreen();
+    void backToMifareSaleProgressScreen();
 
 private slots:
     void backToMifareScreenSlot();
+    void backToMifareSaleProgressSlot();
 
 private:
     QLabel *iconLabel;
     QLabel *textLabel;
-    QPushButton *button2;
+    QLabel *additionalTextLabel;
 };
 
 #endif // MIFARESALEERROR_H

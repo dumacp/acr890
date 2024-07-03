@@ -41,8 +41,7 @@ signals:
     void showMifareSaleScreen();
 
 public slots:
-    void
-    handleSubmit();
+    void handleSubmit();
     void handleTextChanged(const QString &);
     QVariant parseJsonValue(const QString &jsonString);
     void updateSaldoLabel(int balance, const QString &response);
@@ -54,7 +53,6 @@ public slots:
     void piccReader();
 
     // Card
-    void checkForCard();
     void readWriteCard(const QString &atr, const QString &uuid);
     void handlePostNetworkReply(QNetworkReply *reply);
     void readWriteCardStepZero(std::vector<ParsedApduResponse> responseApdus);
@@ -64,6 +62,7 @@ public slots:
     QVariantList parseJsonArray(const QString &jsonString);
     QString generarResponseApdus(const std::vector<ParsedApduResponse> responseApdus);
     QVariantMap stringToJson(const QString &jsonString);
+    void cleanSomeVariables();
 
 private:
     // Card
