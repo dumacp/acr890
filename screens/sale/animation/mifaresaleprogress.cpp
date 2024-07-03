@@ -122,7 +122,6 @@ MifareSaleProgress::~MifareSaleProgress()
     additionalTextLabel->clear();
 
     additionalIconLabel->clear();
- //   additionalIconLabel->clear();
 }
 
 void MifareSaleProgress::startAnimation()
