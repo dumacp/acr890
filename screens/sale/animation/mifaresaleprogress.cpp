@@ -130,7 +130,6 @@ void MifareSaleProgress::startAnimation()
     {
         animationStarted = true;
         timer->start(300); // Inicia la animación
-        startWriting = true;
     }
 }
 
@@ -140,10 +139,10 @@ void MifareSaleProgress::updateIcon()
     iconLabel->setPixmap(icons[currentIndex]);
 
     // Verificar si se ha alcanzado el último icono (100%)
-    if (currentIndex == icons.size() - 1 && !completeTimerStarted && startWriting)
+    if (currentIndex == icons.size() - 1 && !completeTimerStarted && !startWriting)
     {
         completeTimerStarted = true;
-        startWriting = false;
+        startWriting = true;
         completeTimer->start(3000); // Inicializa temporizador de 3 segundos
     }
 }
@@ -548,6 +547,9 @@ void MifareSaleProgress::piccReader()
     {
         qDebug() << "picc_open failed!";
         emit progressMifareDoneError();
+        animationStarted = false;
+        timer->stop();
+        startWriting = false;
         return;
     }
 
@@ -592,6 +594,10 @@ void MifareSaleProgress::piccReader()
     else
     {
         qDebug() << "picc_power_on failed!";
+        animationStarted = false;
+        timer->stop();
+        startWriting = false;
+
         emit progressMifareDoneError();
         picc_close();
     }
@@ -605,6 +611,8 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
+
+    startWriting = false;
 
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
