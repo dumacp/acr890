@@ -217,7 +217,6 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 
 void MifareSaleProgress::handleCompleteTimer()
 {
-
     currentIndex = 0;
     completeTimerStarted = false;
     timer->stop();
@@ -584,8 +583,8 @@ void MifareSaleProgress::piccReader()
     else
     {
         qDebug() << "picc_power_on failed!";
-        emit progressMifareDoneError();
         picc_close();
+        emit progressMifareDoneError();
     }
 }
 
@@ -597,8 +596,7 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
-
-    textLabel->setText("Aplicando Cambios");
+   /*  textLabel->setText("Aplicando Cambios"); */
 
     /*  animationStarted = true;
      timer->start(300); // Inicia la animación */
