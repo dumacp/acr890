@@ -218,7 +218,7 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 void MifareSaleProgress::handleCompleteTimer()
 {
     currentIndex = 0;
-    completeTimerStarted = false;
+    // completeTimerStarted = false;
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
