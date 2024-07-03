@@ -523,11 +523,6 @@ void MifareSaleProgress::PrintPage(const char *companyName, const char *tipoServ
 void MifareSaleProgress::piccReader()
 {
 
-    textLabel->setText("Aplicando Cambios");
-
-    animationStarted = true;
-    timer->start(300); // Inicia la animación
-
     int picc_rtn;
     int rtn;
     int i;
@@ -547,9 +542,6 @@ void MifareSaleProgress::piccReader()
     {
         qDebug() << "picc_open failed!";
         emit progressMifareDoneError();
-        animationStarted = false;
-        timer->stop();
-        startWriting = false;
         return;
     }
 
@@ -594,10 +586,6 @@ void MifareSaleProgress::piccReader()
     else
     {
         qDebug() << "picc_power_on failed!";
-        animationStarted = false;
-        timer->stop();
-        startWriting = false;
-
         emit progressMifareDoneError();
         picc_close();
     }
@@ -612,7 +600,10 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     completeTimer->stop();
     animationStarted = false;
 
-    startWriting = false;
+    textLabel->setText("Aplicando Cambios");
+
+    /*  animationStarted = true;
+     timer->start(300); // Inicia la animación */
 
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
