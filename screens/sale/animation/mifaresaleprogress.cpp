@@ -599,7 +599,7 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     animationStarted = true;
 
     timer->start(100); // Inicia la animación
-    textLabel->setText("Aplicando Cambios \n ...");
+    textLabel->setText("Aplicando Cambios");
 
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -713,6 +713,15 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
                     {
                         qDebug() << "Error en la transmisión:" << status;
                         picc_close();
+
+                        currentIndex = 0;
+                        completeTimerStarted = false;
+                        startWriting = false;
+                        timer->stop();
+                        completeTimer->stop();
+                        animationStarted = false;
+                        textLabel->setText("Procesando");
+
                         emit progressMifareDoneError();
                         return;
                     }
@@ -758,6 +767,14 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
 
         // Cerrar lectora
         picc_close();
+
+        currentIndex = 0;
+        completeTimerStarted = false;
+        startWriting = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
+        textLabel->setText("Procesando");
 
         // Manejar Error
         emit progressMifareDoneError();
@@ -864,6 +881,14 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                         // Cerrar lectora
                         picc_close();
 
+                        currentIndex = 0;
+                        completeTimerStarted = false;
+                        startWriting = false;
+                        timer->stop();
+                        completeTimer->stop();
+                        animationStarted = false;
+                        textLabel->setText("Procesando");
+
                         // Manejar Error
                         emit progressMifareDoneError();
                     }
@@ -903,6 +928,14 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
 
                             // Cerrar lectora
                             picc_close();
+
+                            currentIndex = 0;
+                            completeTimerStarted = false;
+                            startWriting = false;
+                            timer->stop();
+                            completeTimer->stop();
+                            animationStarted = false;
+                            textLabel->setText("Procesando");
 
                             // Manejar Error
                             emit progressMifareDoneError();
@@ -1015,6 +1048,14 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
 
         // Cerrar lectora
         picc_close();
+
+        currentIndex = 0;
+        completeTimerStarted = false;
+        startWriting = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
+        textLabel->setText("Procesando");
 
         // Manejgar error
         emit progressMifareDoneError();
