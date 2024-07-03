@@ -130,7 +130,7 @@ void MifareSaleProgress::startAnimation()
     {
         animationStarted = true;
         startWriting = true;
-        timer->start(300); // Inicia la animación
+        timer->start(150); // Inicia la animación
     }
 }
 
@@ -144,7 +144,7 @@ void MifareSaleProgress::updateIcon()
     {
         completeTimerStarted = true;
         startWriting = false;
-        completeTimer->start(600); // Inicializa temporizador de 3 segundos
+        completeTimer->start(200); // Inicializa temporizador de 3 segundos
     }
 }
 
@@ -597,8 +597,8 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     completeTimerStarted = false;
     completeTimer->stop();
     animationStarted = true;
-    timer->start(300); // Inicia la animación
-    textLabel->setText("Aplicando Cambios");
+    timer->start(150); // Inicia la animación
+    textLabel->setText("Aplicando Cambios ...");
 
     /*  animationStarted = true;
      timer->start(300); // Inicia la animación */
