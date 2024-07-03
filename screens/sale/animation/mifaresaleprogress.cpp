@@ -139,10 +139,9 @@ void MifareSaleProgress::updateIcon()
     iconLabel->setPixmap(icons[currentIndex]);
 
     // Verificar si se ha alcanzado el último icono (100%)
-    if (currentIndex == icons.size() - 1 && !completeTimerStarted && startWriting)
+    if (currentIndex == icons.size() - 1 && !completeTimerStarted)
     {
         completeTimerStarted = true;
-        // startWriting = true;
         completeTimer->start(500); // Inicializa temporizador de 3 segundos
     }
 }
@@ -218,7 +217,6 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 
 void MifareSaleProgress::handleCompleteTimer()
 {
-    startWriting = false;
 
     currentIndex = 0;
     completeTimerStarted = false;
@@ -865,9 +863,11 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
                         QString error = nextStep["error"].toString();
                         qDebug() << "error" << error;
 
+                        // Cerrar lectora
+                        picc_close();
+
                         // Manejar Error
                         emit progressMifareDoneError();
-                        picc_close();
                     }
                 }
                 if (nextStep.contains("desc"))
