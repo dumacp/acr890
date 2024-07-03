@@ -28,7 +28,7 @@ MifareSaleError::MifareSaleError(QWidget *parent)
     iconTextLayout->addWidget(iconLabel, 0, Qt::AlignCenter);
 
     // Agrega el texto adicional debajo del icono
-    QLabel *additionalTextLabel = new QLabel("Intenta nuevamente mas tarde", this);
+    QLabel *additionalTextLabel = new QLabel("Intenta leer la tarjeta nuevamente", this);
     additionalTextLabel->setAlignment(Qt::AlignCenter);
     iconTextLayout->addWidget(additionalTextLabel, 0, Qt::AlignCenter);
 
