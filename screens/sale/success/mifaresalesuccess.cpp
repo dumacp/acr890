@@ -1,5 +1,21 @@
 #include "mifaresalesuccess.h"
 #include <QFont>
+#include <QDebug>
+#include "../../sessionmanager.h"
+
+extern "C"
+{
+#include <acs_api.h>
+#include <acs_errno.h>
+#include <acs_ioctl.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+}
+
+extern int printer_open(void);
+extern int printer_setLineSpaceSM(unsigned char nr_step);
 
 MifareSaleSuccess::MifareSaleSuccess(QWidget *parent)
     : QWidget(parent)
@@ -34,11 +50,10 @@ MifareSaleSuccess::MifareSaleSuccess(QWidget *parent)
     QPushButton *button1 = new QPushButton("Imprimir copia", this);
     QPushButton *button2 = new QPushButton("Salir", this);
 
-    // Conectar la señal 'clicked()' del boton "Imprimir copia" al slot 'printPage' para imprimir una copía de la factura
-    // connect(button1, SIGNAL(clicked()), this, SLOT(printCopyPage()));
-
     // Conectar la señal 'clicked()' del boton salir al slot 'backToBilleteraScreenSlot' para regresar a RecargaBilleteraScreen
-    connect(button2, SIGNAL(clicked()), this, SLOT(backToBilleteraScreenSlot()));
+    connect(button2, SIGNAL(clicked()), this, SLOT(backToMifareScreenSlot()));
+
+    connect(button1, SIGNAL(clicked()), this, SLOT(runPrinter()));
 
     // Establecer el tamaño fijo de los botones
     button1->setFixedWidth(222);
@@ -73,4 +88,37 @@ MifareSaleSuccess::MifareSaleSuccess(QWidget *parent)
 void MifareSaleSuccess::backToMifareScreenSlot()
 {
     emit backToMifareScreen();
+}
+
+void MifareSaleSuccess::runPrinter()
+{
+    int nRet;
+
+    nRet = printer_open();
+    if (nRet < 0)
+    {
+        qDebug() << "ACR890_Printer_Open error" << nRet;
+        return;
+    }
+
+    QString response = SessionManager::instance().getMessageToPrint();
+
+    // Imprimir una sola vez
+    PrintPage("NebulaE", "Recarga Mifare", response.toUtf8().constData(), "2024/03/19 11:42:44");
+
+    // Cerrar la impresora
+    printer_close();
+}
+
+void MifareSaleSuccess::PrintPage(const char *companyName, const char *tipoServicio, const char *sampleText, const char *dateTime)
+{
+    printer_setLineSpaceSM(30);
+    printer_printStrSM(companyName);
+    printer_printStrSM(" ");
+    printer_printStrSM(sampleText);
+    printer_printStrSM(" ");
+    printer_printStrSM(dateTime);
+    printer_printStrSM(" ");
+    printer_printStrSM("acr890");
+    printer_printStrSM(" ");
 }

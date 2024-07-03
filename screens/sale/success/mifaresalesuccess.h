@@ -23,6 +23,8 @@ signals:
 
 private slots:
     void backToMifareScreenSlot();
+    void runPrinter();
+    void PrintPage(const char *companyName, const char *tipoServicio, const char *sampleText, const char *dateTime);
 
 private:
     QLabel *iconLabel;

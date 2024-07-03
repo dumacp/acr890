@@ -38,8 +38,8 @@ MifareSaleError::MifareSaleError(QWidget *parent)
     // Configura los botones
     QPushButton *button2 = new QPushButton("Salir", this);
 
-    // Conectar la señal 'clicked()' del boton salir al slot 'backToBilleteraScreenSlot' para regresar a RecargaBilleteraScreen
-    connect(button2, SIGNAL(clicked()), this, SLOT(backToBilleteraScreenSlot()));
+    // Conectar la señal 'clicked()' del boton salir al slot 'backToMifareScreenSlot' para regresar a RecargaMifareScreen
+    connect(button2, SIGNAL(clicked()), this, SLOT(backToMifareScreenSlot()));
 
     // Establecer el tamaño fijo de los botones
     button2->setFixedWidth(222);

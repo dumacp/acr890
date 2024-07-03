@@ -42,6 +42,7 @@ LoginScreen::LoginScreen(QWidget *parent)
 
     QPushButton *submitButton = new QPushButton(tr("Iniciar"));
     submitButton->setFixedWidth(200); // Cambia 220 al ancho deseado en píxeles
+    submitButton->setStyleSheet("border: 1px solid black; border-radius: 4px; font-size: 14pt;");
     submitButton->setFixedHeight(40); // Cambia 40 al ancho deseado en píxeles
 
     // Inicializa la variable miembro resultLabel en lugar de declarar una nueva localmente

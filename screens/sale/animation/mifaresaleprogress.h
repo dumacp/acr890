@@ -19,6 +19,16 @@
 #include <pthread.h>
 #include <unistd.h>
 
+// standard
+#include <stdint-gcc.h>
+#include <stdint.h>
+#include <vector>
+
+#include "../../../smartCard/MifareClassic.h"
+#include "../../../smartCard/AcsHelper.h"
+#include "../../../smartCard/AcsReader.h"
+#include "../../../smartCard/AcsException.h"
+
 class MifareSaleProgress : public QWidget
 {
     Q_OBJECT
@@ -26,20 +36,34 @@ class MifareSaleProgress : public QWidget
 public:
     MifareSaleProgress(QWidget *parent = 0);
     void startAnimation();
+    ~MifareSaleProgress();
 
 signals:
-    void progressDoneSuccess();
-    void progressDoneError();
+    void progressMifareDoneSuccess();
+    void progressMifareDoneError();
 
 private slots:
     void updateIcon();
     void handleCompleteTimer();
-    void handlePostNetworkReply(QNetworkReply *reply);
+    void handlePostNetworkReplySale(QNetworkReply *reply);
     void processJson(const QVariant &json);
     void handleApiResponse(const QString &response);
+
+    // Parse Data
     QVariant parseJsonValue(const QString &jsonString);
     QVariantList parseJsonArray(const QString &jsonString);
+    QVariantMap stringToJson(const QString &jsonString);
+    QVariantMap parseJsonObject(const QString &jsonString);
+    QVariantMap parseJson(const QString &jsonString);
 
+    // Card
+    void piccReader();
+    void readWriteCard(const QString &atr, const QString &uuid);
+    void handlePostNetworkReply(QNetworkReply *reply);
+    void readWriteCardStepZero(std::vector<ParsedApduResponse> responseApdus);
+    void handlePostNetworkReplyZero(QNetworkReply *reply);
+
+    // Printer
     void runPrinter(const QString &response);
 
 private:
@@ -56,10 +80,8 @@ private:
     bool completeTimerStarted;
     bool animationStarted;
 
-    QVariantMap stringToJson(const QString &jsonString);
-    QVariantMap parseJsonObject(const QString &jsonString);
-
-    QVariantMap parseJson(const QString &jsonString);
+    // Clean this later
+    QString generarResponseApdus(const std::vector<ParsedApduResponse> responseApdus);
 
     QString pointOfSaleDataString;
     QVariantMap pointOfSaleData;
@@ -70,6 +92,26 @@ private:
     QString userId;
     QString userDocument;
     QString currentUnitPrice;
+
+    QString cardData;
+    QString cardDataSecond;
+    QString atrNumberConfig;
+    QString uuidConfig;
+    QString stepNumber;
+    QString sessionIdConfig;
+    std::vector<ParsedApduResponse> responseApdus;
+
+    QSignalMapper *signalMapper;
+
+    QString userName;
+    QString payId;
+    QString endUserFullname;
+    QString endUserId;
+    QString endUserDocument;
+    QString currentBalance;
+    int balance;
+    QString modifyingText;
+    QString message;
 
     void PrintPage(const char *companyName, const char *tipoServicio, const char *sampleText, const char *dateTime);
 };

@@ -61,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     mifareSaleProgress = new MifareSaleProgress;
     saleSuccess = new SaleSuccess;
     saleError = new SaleError;
+    mifareSaleSuccess = new MifareSaleSuccess;
+    mifareSaleError = new MifareSaleError;
     historyScreen = new HistoryScreen;
     configScreen = new ConfigScreen;
 
@@ -74,6 +76,8 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(recargaMifareScreen);
     stackedWidget->addWidget(saleProgress);
     stackedWidget->addWidget(mifareSaleProgress);
+    stackedWidget->addWidget(mifareSaleSuccess);
+    stackedWidget->addWidget(mifareSaleError);
     stackedWidget->addWidget(saleSuccess);
     stackedWidget->addWidget(saleError);
     stackedWidget->addWidget(historyScreen);
@@ -97,14 +101,26 @@ MainWindow::MainWindow(QWidget *parent)
     // Conectar la señal 'progressDoneSuccess()' de SaleProgress con el slot 'changeToSaleScreen()' de mainwindow
     connect(saleProgress, SIGNAL(progressDoneSuccess()), this, SLOT(changeToSaleSuccessScreen()));
 
+    // Conectar la señal 'progressMifareDoneSuccess()' de MifareSaleProgress con el slot 'changeToMifareSaleSuccessScreen()' de mainwindow
+    connect(mifareSaleProgress, SIGNAL(progressMifareDoneSuccess()), this, SLOT(changeToMifareSaleSuccessScreen()));
+
     // Conectar la señal 'progressDoneError()' de SaleProgress con el slot 'changeToSaleScreen()' de mainwindow
     connect(saleProgress, SIGNAL(progressDoneError()), this, SLOT(changeToSaleErrorScreen()));
+
+    // Conectar la señal 'progressMifareDoneError()' de SaleProgress con el slot 'changeToMifareSaleErrorScreen()' de mainwindow
+    connect(mifareSaleProgress, SIGNAL(progressMifareDoneError()), this, SLOT(changeToMifareSaleErrorScreen()));
 
     // Conectar la señal 'backToBilleteraScreen()' de SaleSuccess con el slot 'changeBackToRecargaBilletera()' de mainwindow
     connect(saleSuccess, SIGNAL(backToBilleteraScreen()), this, SLOT(changeBackToRecargaBilletera()));
 
     // Conectar la señal 'backToBilleteraScreen()' de SaleError con el slot 'changeBackToRecargaBilletera()' de mainwindow
     connect(saleError, SIGNAL(backToBilleteraScreen()), this, SLOT(changeBackToRecargaBilletera()));
+
+    // Conectar la señal 'backToMifareScreen()' de MifareSaleSuccess con el slot 'changeBackToRecargaBilletera()' de mainwindow
+    connect(mifareSaleSuccess, SIGNAL(backToMifareScreen()), this, SLOT(changeBackToRecargaMifare()));
+
+    // Conectar la señal 'backToMifareScreen()' de MifareSaleError con el slot 'changeBackToRecargaMifare()' de mainwindow
+    connect(mifareSaleError, SIGNAL(backToMifareScreen()), this, SLOT(changeBackToRecargaMifare()));
 
     // Conectar la señal 'authFailed()' de loginScreen con el slot 'setNotAuthenticated()' de mainwindow
     connect(loginScreen, SIGNAL(authFailed()), this, SLOT(setNotAuthenticated()));
@@ -141,7 +157,6 @@ MainWindow::MainWindow(QWidget *parent)
     QString dateFormat = "dd/MM/yyyy";
     QString timeFormat = "hh:mm:ss";
     dateLabel->setText(currentDateTime.toString(dateFormat));
-    // timeLabel->setText(currentDateTime.toString(timeFormat));
     dateLabel->setStyleSheet("font-size: 10pt; border: none;");
     timeLabel->setStyleSheet("font-size: 10pt; border: none;");
 
@@ -232,8 +247,10 @@ MainWindow::~MainWindow()
     delete configScreen;
     delete saleProgress;
     delete mifareSaleProgress;
-    delete saleError;
     delete saleSuccess;
+    delete saleError;
+    delete mifareSaleSuccess;
+    delete mifareSaleError;
 }
 
 void MainWindow::showLoginScreen()
@@ -297,16 +314,6 @@ void MainWindow::changeToSaleScreen()
         << "Cambiar a saleProgress" << "todo ok";
 }
 
-void MainWindow::changeToMifareSaleScreen()
-{
-    notificationBarContainer->setVisible(false);
-    navigationBarContainer->setVisible(false);
-    stackedWidget->setCurrentWidget(mifareSaleProgress);
-    mifareSaleProgress->startAnimation();
-    qDebug()
-        << "Cambiar a mifareSaleProgress" << "todo ok";
-}
-
 void MainWindow::changeToSaleSuccessScreen()
 {
     stackedWidget->setCurrentWidget(saleSuccess);
@@ -325,6 +332,36 @@ void MainWindow::changeBackToRecargaBilletera()
     navigationBarContainer->setVisible(true);
     stackedWidget->setCurrentWidget(recargaBilleteraScreen);
     qDebug() << "Cambiar a RecargaBilletera" << "todo ok";
+}
+
+void MainWindow::changeToMifareSaleScreen()
+{
+    notificationBarContainer->setVisible(false);
+    navigationBarContainer->setVisible(false);
+    stackedWidget->setCurrentWidget(mifareSaleProgress);
+    mifareSaleProgress->startAnimation();
+    qDebug()
+        << "Cambiar a mifareSaleProgress" << "todo ok";
+}
+
+void MainWindow::changeToMifareSaleSuccessScreen()
+{
+    stackedWidget->setCurrentWidget(mifareSaleSuccess);
+    qDebug() << "Cambiar a mifareSaleSuccess" << "todo ok";
+}
+
+void MainWindow::changeToMifareSaleErrorScreen()
+{
+    stackedWidget->setCurrentWidget(mifareSaleError);
+    qDebug() << "Cambiar a mifareSaleError" << "todo ok";
+}
+
+void MainWindow::changeBackToRecargaMifare()
+{
+    notificationBarContainer->setVisible(true);
+    navigationBarContainer->setVisible(true);
+    stackedWidget->setCurrentWidget(recargaMifareScreen);
+    qDebug() << "Cambiar a RecargaMifare" << "todo ok";
 }
 
 void MainWindow::setNotAuthenticated()

@@ -40,15 +40,10 @@ protected:
 signals:
     void showMifareSaleScreen();
 
-protected:
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
-
 public slots:
     void
     handleSubmit();
     void handleTextChanged(const QString &);
-    void executeSale(const QString &);
     QVariant parseJsonValue(const QString &jsonString);
     void updateSaldoLabel(int balance, const QString &response);
     void restoreSaldoLabel();
@@ -56,7 +51,6 @@ public slots:
     void validateAddressText(const QString &text);
     QString extractNumericValue(const QString &text);
     void emitMifareSaleSuccessToMainWindow();
-    void emitMifareSaleErrorToMainWindow();
     void piccReader();
 
     // Card
@@ -85,6 +79,7 @@ private:
 
     QTimer *timer;
     QLineEdit *addressText;
+    QPushButton *submitButton;
     QLabel *infoText;
     QLabel *saldoLabel;
     QLabel *valorLabel;

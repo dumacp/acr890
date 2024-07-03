@@ -22,7 +22,7 @@ static const uint qt_meta_data_RecargaMifareScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      22,   14, // methods
+      20,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -35,25 +35,23 @@ static const uint qt_meta_data_RecargaMifareScreen[] = {
  // slots: signature, parameters, type, tag, flags
       44,   20,   20,   20, 0x0a,
       59,   20,   20,   20, 0x0a,
-      86,   20,   20,   20, 0x0a,
-     127,  116,  107,   20, 0x0a,
-     168,  151,   20,   20, 0x0a,
-     198,   20,   20,   20, 0x0a,
-     234,  222,  218,   20, 0x0a,
-     276,  271,   20,   20, 0x0a,
-     313,  271,  305,   20, 0x0a,
-     342,   20,   20,   20, 0x0a,
-     378,   20,   20,   20, 0x0a,
-     412,   20,   20,   20, 0x0a,
-     425,   20,   20,   20, 0x0a,
-     449,  440,   20,   20, 0x0a,
-     486,  480,   20,   20, 0x0a,
-     539,  525,   20,   20, 0x0a,
-     594,  480,   20,   20, 0x0a,
-     649,  116,  637,   20, 0x0a,
-     687,  116,  674,   20, 0x0a,
-     711,  525,  305,   20, 0x0a,
-     765,  116,  637,   20, 0x0a,
+     106,   95,   86,   20, 0x0a,
+     147,  130,   20,   20, 0x0a,
+     177,   20,   20,   20, 0x0a,
+     213,  201,  197,   20, 0x0a,
+     255,  250,   20,   20, 0x0a,
+     292,  250,  284,   20, 0x0a,
+     321,   20,   20,   20, 0x0a,
+     357,   20,   20,   20, 0x0a,
+     370,   20,   20,   20, 0x0a,
+     394,  385,   20,   20, 0x0a,
+     431,  425,   20,   20, 0x0a,
+     484,  470,   20,   20, 0x0a,
+     539,  425,   20,   20, 0x0a,
+     594,   95,  582,   20, 0x0a,
+     632,   95,  619,   20, 0x0a,
+     656,  470,  284,   20, 0x0a,
+     710,   95,  582,   20, 0x0a,
 
        0        // eod
 };
@@ -61,15 +59,13 @@ static const uint qt_meta_data_RecargaMifareScreen[] = {
 static const char qt_meta_stringdata_RecargaMifareScreen[] = {
     "RecargaMifareScreen\0\0showMifareSaleScreen()\0"
     "handleSubmit()\0handleTextChanged(QString)\0"
-    "executeSale(QString)\0QVariant\0jsonString\0"
-    "parseJsonValue(QString)\0balance,response\0"
-    "updateSaldoLabel(int,QString)\0"
+    "QVariant\0jsonString\0parseJsonValue(QString)\0"
+    "balance,response\0updateSaldoLabel(int,QString)\0"
     "restoreSaldoLabel()\0int\0priceString\0"
     "removeCommasAndConvertToInt(QString)\0"
     "text\0validateAddressText(QString)\0"
     "QString\0extractNumericValue(QString)\0"
     "emitMifareSaleSuccessToMainWindow()\0"
-    "emitMifareSaleErrorToMainWindow()\0"
     "piccReader()\0checkForCard()\0atr,uuid\0"
     "readWriteCard(QString,QString)\0reply\0"
     "handlePostNetworkReply(QNetworkReply*)\0"
@@ -91,31 +87,29 @@ void RecargaMifareScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, 
         case 0: _t->showMifareSaleScreen(); break;
         case 1: _t->handleSubmit(); break;
         case 2: _t->handleTextChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 3: _t->executeSale((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 4: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 3: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariant*>(_a[0]) = _r; }  break;
-        case 5: _t->updateSaldoLabel((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
-        case 6: _t->restoreSaldoLabel(); break;
-        case 7: { int _r = _t->removeCommasAndConvertToInt((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 4: _t->updateSaldoLabel((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 5: _t->restoreSaldoLabel(); break;
+        case 6: { int _r = _t->removeCommasAndConvertToInt((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
-        case 8: _t->validateAddressText((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 9: { QString _r = _t->extractNumericValue((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 7: _t->validateAddressText((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 8: { QString _r = _t->extractNumericValue((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 10: _t->emitMifareSaleSuccessToMainWindow(); break;
-        case 11: _t->emitMifareSaleErrorToMainWindow(); break;
-        case 12: _t->piccReader(); break;
-        case 13: _t->checkForCard(); break;
-        case 14: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
-        case 15: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 16: _t->readWriteCardStepZero((*reinterpret_cast< std::vector<ParsedApduResponse>(*)>(_a[1]))); break;
-        case 17: _t->handlePostNetworkReplyZero((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 18: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 9: _t->emitMifareSaleSuccessToMainWindow(); break;
+        case 10: _t->piccReader(); break;
+        case 11: _t->checkForCard(); break;
+        case 12: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 13: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 14: _t->readWriteCardStepZero((*reinterpret_cast< std::vector<ParsedApduResponse>(*)>(_a[1]))); break;
+        case 15: _t->handlePostNetworkReplyZero((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 16: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
-        case 19: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 17: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = _r; }  break;
-        case 20: { QString _r = _t->generarResponseApdus((*reinterpret_cast< const std::vector<ParsedApduResponse>(*)>(_a[1])));
+        case 18: { QString _r = _t->generarResponseApdus((*reinterpret_cast< const std::vector<ParsedApduResponse>(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 21: { QVariantMap _r = _t->stringToJson((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 19: { QVariantMap _r = _t->stringToJson((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
         default: ;
         }
@@ -154,9 +148,9 @@ int RecargaMifareScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 22)
+        if (_id < 20)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 22;
+        _id -= 20;
     }
     return _id;
 }

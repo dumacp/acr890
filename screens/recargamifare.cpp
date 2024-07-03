@@ -51,11 +51,16 @@ extern "C"
 
 RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     : QWidget(parent),
-      timer(new QTimer(this))
-/* networkManager(new QNetworkAccessManager(this)) */
+      timer(new QTimer(this)),
+      addressText(0),
+      submitButton(0),
+      infoText(0),
+      saldoLabel(0),
+      valorLabel(0),
+      saldoNuevoLabel(0),
+      valorNuevoLabel(0),
+      resultLabel(0)
 {
-    // Cards detect
-    // connect(timer, SIGNAL(timeout()), this, SLOT(checkForCard()));
 
     // Icono en la parte izquierda de la pantalla
     QLabel *iconLabel = new QLabel;
@@ -77,7 +82,7 @@ RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     titleLabel->setWordWrap(true); // Permitir el ajuste de línea automático si el texto es demasiado largo
 
-    addressText = new QLineEdit("2,000 COP"); // Inicializa addressText y asígnalo a la variable miembro
+    addressText = new QLineEdit("0 COP"); // Inicializa addressText y asígnalo a la variable miembro
 
     // QLineEdit *addressText = new QLineEdit("20.000 COP");
     addressText->setPlaceholderText("Ingrese el valor de su recarga");
@@ -86,12 +91,11 @@ RecargaMifareScreen::RecargaMifareScreen(QWidget *parent)
     addressText->setFixedHeight(40);
 
     // Botón de envío
-    QPushButton *submitButton = new QPushButton();
-    QIcon submitIcon(":/assets/icons/check_ok.png");
-    submitButton->setIcon(submitIcon);
-    submitButton->setIconSize(QSize(32, 32)); // Establece el tamaño del icono según sea necesario
-    // addButton->setStyleSheet("border: 2px solid black; background-color: white;");
-    submitButton->setStyleSheet("border: none");
+
+    submitButton = new QPushButton("Leer");
+    submitButton->setStyleSheet("border: 1px solid black; border-radius: 4px; font-size: 14pt;");
+    submitButton->setFixedWidth(150);
+    submitButton->setFixedHeight(40);
 
     resultLabel = new QLabel;
 
@@ -202,28 +206,6 @@ RecargaMifareScreen::~RecargaMifareScreen()
     userDocument.clear();
     currentBalance.clear();
     modifyingText.clear();
-
-    if (signalMapper)
-    {
-        delete signalMapper;
-        signalMapper = 0;
-    }
-
-    qDebug() << "RecargaMifareScreen has been reset.";
-}
-
-void RecargaMifareScreen::showEvent(QShowEvent *event)
-{
-    QWidget::showEvent(event);
-    timer->start(1000); // Empieza a escuchar cada segundo
-    qDebug() << "Started listening for card reader";
-}
-
-void RecargaMifareScreen::hideEvent(QHideEvent *event)
-{
-    QWidget::hideEvent(event);
-    timer->stop(); // Detiene la escucha
-    qDebug() << "Stopped listening for card reader";
 }
 
 void RecargaMifareScreen::checkForCard()
@@ -288,7 +270,6 @@ void RecargaMifareScreen::checkForCard()
     }
 }
 
-// Get ATR and UUID
 void RecargaMifareScreen::piccReader()
 {
     int picc_rtn;
@@ -303,14 +284,23 @@ void RecargaMifareScreen::piccReader()
 
     picc_rtn = picc_open();
     if (picc_rtn == 0)
-        printf("picc_open successful!\n");
+    {
+        qDebug() << "picc_open successful!";
+    }
     else
-        printf("picc_open failed!\n");
+    {
+        qDebug() << "picc_open failed!";
+        return;
+    }
 
     memset(atr, 0, sizeof(atr));
     rtn = picc_power_on(atr, &atr_len);
     if (rtn == 0)
     {
+        // Desactivar el botón para evitar múltiples clics
+        submitButton->setEnabled(false);
+        submitButton->setText("Leyendo ...");
+
         // Crear un stringstream para construir la cadena ATR Y UUID
         std::stringstream atrValue;
         std::stringstream uuidValue;
@@ -342,14 +332,19 @@ void RecargaMifareScreen::piccReader()
         atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
         uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
 
-        // Executar lectura-escritura FLEET
+        // Ejecutar lectura-escritura FLEET
         readWriteCard(atrNumberConfig, uuidConfig.toUpper());
     }
-    // picc_close();
+    else
+    {
+        qDebug() << "picc_power_on failed!";
+        picc_close();
+    }
 }
 
 void RecargaMifareScreen::readWriteCard(const QString &atr, const QString &uuid)
 {
+
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 
@@ -532,8 +527,10 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
                     if (status != 0)
                     {
                         qDebug() << "Error en la transmisión:" << status;
-                        // Manejar el error sin usar return
-                        continue;
+                        picc_close();
+                        submitButton->setEnabled(true);
+                        submitButton->setText("Leer");
+                        return;
                     }
 
                     ApduResponse apduResponse;
@@ -576,6 +573,16 @@ void RecargaMifareScreen::handlePostNetworkReply(QNetworkReply *reply)
         qDebug() << "Error en la solicitud:" << reply->errorString();
         QByteArray errorData = reply->readAll();
         qDebug() << "Detalle del error:" << errorData;
+
+        int balance = 666;
+        QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, errorData));
+
+        // Cerrar lectora
+        picc_close();
+
+        // Volver a activar el botón después de completar la operación
+        submitButton->setEnabled(true);
+        submitButton->setText("Leer");
     }
     // Liberar la memoria del objeto QNetworkReply
     reply->deleteLater();
@@ -641,8 +648,10 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                         if (status != 0)
                         {
                             qDebug() << "Error en la transmisión:" << status;
-                            // Manejar el error sin usar return
-                            continue;
+                            picc_close();
+                            submitButton->setEnabled(true);
+                            submitButton->setText("Leer");
+                            return;
                         }
 
                         ApduResponse apduResponse;
@@ -721,16 +730,29 @@ void RecargaMifareScreen::handlePostNetworkReplyZero(QNetworkReply *reply)
                     qDebug() << "endUserId: " << endUserId;
                 }
                 picc_close();
+                // Volver a activar el botón después de completar la operación
+                submitButton->setEnabled(true);
+                submitButton->setText("Leer");
             }
         }
     }
     else
     {
         qDebug() << "Error en la solicitud:" << reply->errorString();
+
         QByteArray errorData = reply->readAll();
+
         qDebug() << "Detalle del error:" << errorData;
+
         int balance = 666;
         QMetaObject::invokeMethod(this, "updateSaldoLabel", Q_ARG(int, balance), Q_ARG(const QString &, errorData));
+
+        // Cerrar lectora
+        picc_close();
+
+        // Volver a activar el botón después de completar la operación
+        submitButton->setEnabled(true);
+        submitButton->setText("Leer");
     }
     // Liberar la memoria del objeto QNetworkReply
     reply->deleteLater();
@@ -858,15 +880,23 @@ void RecargaMifareScreen::updateSaldoLabel(int balance, const QString &response)
     connect(timer, SIGNAL(timeout()), this, SLOT(restoreSaldoLabel()));
 
     if (balance < 0)
+    {
         text = QString("SALDO ACTUAL: <span style='color:red;'>%1 COP</span>").arg(formattedBalance);
+        timer->stop();
+    }
+
     else if (response != "no")
     {
         text = QString("<span style='color:red;'>%1</span>").arg(response);
         timer->start(5000);
     }
     else
+    {
         text = QString("SALDO ACTUAL: %1 COP").arg(formattedBalance);
+        // timer->stop();
+    }
 
+    timer->stop();
     infoText->setVisible(false);
     saldoLabel->setVisible(true);
     saldoLabel->setText(text);
@@ -977,10 +1007,6 @@ QString RecargaMifareScreen::extractNumericValue(const QString &text)
     result = result.trimmed();
 
     return result;
-}
-
-void RecargaMifareScreen::executeSale(const QString &)
-{
 }
 
 int RecargaMifareScreen::removeCommasAndConvertToInt(const QString &priceString)
@@ -1112,12 +1138,7 @@ void RecargaMifareScreen::keyPressEvent(QKeyEvent *event)
 
 void RecargaMifareScreen::emitMifareSaleSuccessToMainWindow()
 {
-    qDebug() << "Widget Confirmación Recarga Mifare";
     emit showMifareSaleScreen();
-}
-
-void RecargaMifareScreen::emitMifareSaleErrorToMainWindow()
-{
 }
 
 // Data parser

@@ -22,7 +22,7 @@ static const uint qt_meta_data_MifareSaleSuccess[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -34,13 +34,17 @@ static const uint qt_meta_data_MifareSaleSuccess[] = {
 
  // slots: signature, parameters, type, tag, flags
       40,   18,   18,   18, 0x08,
+      65,   18,   18,   18, 0x08,
+     123,   78,   18,   18, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_MifareSaleSuccess[] = {
     "MifareSaleSuccess\0\0backToMifareScreen()\0"
-    "backToMifareScreenSlot()\0"
+    "backToMifareScreenSlot()\0runPrinter()\0"
+    "companyName,tipoServicio,sampleText,dateTime\0"
+    "PrintPage(const char*,const char*,const char*,const char*)\0"
 };
 
 void MifareSaleSuccess::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -51,10 +55,11 @@ void MifareSaleSuccess::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         switch (_id) {
         case 0: _t->backToMifareScreen(); break;
         case 1: _t->backToMifareScreenSlot(); break;
+        case 2: _t->runPrinter(); break;
+        case 3: _t->PrintPage((*reinterpret_cast< const char*(*)>(_a[1])),(*reinterpret_cast< const char*(*)>(_a[2])),(*reinterpret_cast< const char*(*)>(_a[3])),(*reinterpret_cast< const char*(*)>(_a[4]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObjectExtraData MifareSaleSuccess::staticMetaObjectExtraData = {
@@ -89,9 +94,9 @@ int MifareSaleSuccess::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
 }

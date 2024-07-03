@@ -1,14 +1,32 @@
 #include "mifaresaleprogress.h"
 #include <QFont>
 #include <QVariantMap>
-#include "../../sessionmanager.h"
 #include <QDebug>
+
+#include <QtGui>
+#include <QMessageBox>
+#include <QVariantMap>
+#include <QVariantList>
+#include <QByteArray>
+#include <QTextStream>
+#include <QRegExp>
+
+// Session Manager - Singleton
+#include "../../sessionmanager.h"
+#include <cstddef>
+
+// Custom Transmit
+AcsReader _cReaderMifareSaleScreen;
 
 extern "C"
 {
 #include <acs_api.h>
 #include <acs_errno.h>
 #include <acs_ioctl.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 }
 
 extern int printer_open(void);
@@ -56,8 +74,52 @@ MifareSaleProgress::MifareSaleProgress(QWidget *parent)
 
     // Configura el QTimer para manejar la finalización
     completeTimer = new QTimer(this);
-    completeTimer->setSingleShot(true);
     connect(completeTimer, SIGNAL(timeout()), this, SLOT(handleCompleteTimer()));
+}
+
+MifareSaleProgress::~MifareSaleProgress()
+{
+    cardData.clear();
+    cardDataSecond.clear();
+    atrNumberConfig.clear();
+    uuidConfig.clear();
+    stepNumber.clear();
+    sessionIdConfig.clear();
+    responseApdus.clear();
+    endUserDocument.clear();
+
+    currentIndex = 0;
+    completeTimerStarted = false;
+    timer->stop();
+    completeTimer->stop();
+    animationStarted = false;
+
+    jwtToken.clear();
+    posId.clear();
+    userName.clear();
+    userId.clear();
+    userDocument.clear();
+    currentBalance.clear();
+    modifyingText.clear();
+
+    pointOfSaleDataString.clear();
+    pointOfSaleData.clear();
+    posId.clear();
+    posData.clear();
+    productId.clear();
+    jwtToken.clear();
+    userId.clear();
+    userDocument.clear();
+    currentUnitPrice.clear();
+
+    payId.clear();
+    endUserFullname.clear();
+    endUserId.clear();
+    message.clear();
+
+    additionalTextLabel->clear();
+
+    additionalIconLabel->clear();
 }
 
 void MifareSaleProgress::startAnimation()
@@ -65,7 +127,7 @@ void MifareSaleProgress::startAnimation()
     if (!animationStarted)
     {
         animationStarted = true;
-        timer->start(600); // Inicia la animación
+        timer->start(300); // Inicia la animación
     }
 }
 
@@ -153,8 +215,13 @@ void MifareSaleProgress::handleApiResponse(const QString &response)
 
 void MifareSaleProgress::handleCompleteTimer()
 {
-    QString posData = SessionManager::instance().getPointOfSaleData();
+    currentIndex = 0;
+    completeTimerStarted = false;
+    timer->stop();
+    completeTimer->stop();
+    animationStarted = false;
 
+    QString posData = SessionManager::instance().getPointOfSaleData();
     // Obtener el accessToken actual
     QString jwtToken = SessionManager::instance().getJwtToken();
     QVariantMap jwtTokenJson = stringToJson(jwtToken);
@@ -187,7 +254,7 @@ void MifareSaleProgress::handleCompleteTimer()
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 
     // Conectar la señal de respuesta usando la sintaxis antigua
-    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReply(QNetworkReply *)));
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReplySale(QNetworkReply *)));
 
     // Crear la solicitud HTTP
     QNetworkRequest request;
@@ -257,21 +324,20 @@ void MifareSaleProgress::handleCompleteTimer()
     manager->post(request, postData);
 }
 
-void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
+void MifareSaleProgress::handlePostNetworkReplySale(QNetworkReply *reply)
 {
     if (reply->error() == QNetworkReply::NoError)
     {
         QByteArray responseData = reply->readAll();
         qDebug() << "Response:" << responseData;
-        emit progressDoneSuccess();
-        runPrinter(responseData);
+        piccReader();
     }
     else
     {
         qDebug() << "Error en la solicitud:" << reply->errorString();
         QByteArray errorData = reply->readAll();
         qDebug() << "Detalle del error:" << errorData;
-        emit progressDoneError();
+        emit progressMifareDoneError();
     }
 
     // Liberar la memoria del objeto QNetworkReply
@@ -429,7 +495,7 @@ void MifareSaleProgress::runPrinter(const QString &response)
     }
 
     // Imprimir una sola vez
-    PrintPage("NebulaE", "Recarga Billetera", response.toUtf8().constData(), "2024/03/19 11:42:44");
+    PrintPage("NebulaE", "Recarga Mifare", response.toUtf8().constData(), "2024/03/19 11:42:44");
 
     // Cerrar la impresora
     printer_close();
@@ -446,4 +512,520 @@ void MifareSaleProgress::PrintPage(const char *companyName, const char *tipoServ
     printer_printStrSM(" ");
     printer_printStrSM("acr890");
     printer_printStrSM(" ");
+}
+
+// Card
+void MifareSaleProgress::piccReader()
+{
+
+    textLabel->setText("Aplicando Cambios ...");
+
+    animationStarted = true;
+    timer->start(300); // Inicia la animación
+
+    int picc_rtn;
+    int rtn;
+    int i;
+    char uid_buf[10];
+    unsigned char atr[64];
+    unsigned char atr_len;
+
+    struct picc_card picc_card_info;
+    char picc_uid_str[64];
+
+    picc_rtn = picc_open();
+    if (picc_rtn == 0)
+    {
+        qDebug() << "picc_open successful!";
+    }
+    else
+    {
+        qDebug() << "picc_open failed!";
+        emit progressMifareDoneError();
+        return;
+    }
+
+    memset(atr, 0, sizeof(atr));
+    rtn = picc_power_on(atr, &atr_len);
+    if (rtn == 0)
+    {
+        // Crear un stringstream para construir la cadena ATR Y UUID
+        std::stringstream atrValue;
+        std::stringstream uuidValue;
+
+        printf("ATR = ");
+        for (i = 0; i < atr_len; i++)
+        {
+            printf("0x%02x ", atr[i]);
+            atrValue << std::hex << std::setw(2) << std::setfill('0') << (int)atr[i]; // Almacenar cada elemento del array atr[] como un unico string - Así obtenemos el ATR
+        }
+        printf("\n");
+
+        memset(picc_uid_str, 0, sizeof(picc_uid_str));
+        rtn = picc_poll_card(&picc_card_info);
+        printf("UID = ");
+        for (i = 0; i < picc_card_info.uidlength; i++)
+        {
+            printf("0x%02x ", picc_card_info.uid[i]);                                                 // Almacenar cada elemento del array picc_card_info.uid[] como un unico string - Así obtenemos el UID
+            uuidValue << std::hex << std::setw(2) << std::setfill('0') << (int)picc_card_info.uid[i]; // Almacenar cada elemento del array picc_card_info.uid[] como un unico string - Así obtenemos el UUID
+            sprintf(uid_buf, "0x%02x ", picc_card_info.uid[i]);
+            strcat(picc_uid_str, uid_buf);
+        }
+        printf("\n");
+
+        // Almacenar el atrValue y uuidValue
+        std::string atrStd = atrValue.str();
+        std::string uuidStd = uuidValue.str();
+
+        atrNumberConfig = QString::fromUtf8(atrStd.c_str(), atrStd.length());
+        uuidConfig = QString::fromUtf8(uuidStd.c_str(), uuidStd.length());
+
+        // Ejecutar lectura-escritura FLEET
+        readWriteCard(atrNumberConfig, uuidConfig.toUpper());
+    }
+    else
+    {
+        qDebug() << "picc_power_on failed!";
+        emit progressMifareDoneError();
+        picc_close();
+    }
+}
+
+void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
+{
+    // Crear el manager de la red
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+    // Obtener el accessToken actual
+    QString jwtToken = SessionManager::instance().getJwtToken();
+    QVariantMap jwtTokenJson = stringToJson(jwtToken);
+    QString accessToken = jwtTokenJson.value("access_token").toString();
+
+    // Crear la solicitud HTTP
+    QNetworkRequest request;
+    request.setUrl(QUrl("https://fleet.nebulae.com.co/api/external-network-gateway/rest/paymentMedium/applyPendingMods"));
+    request.setRawHeader("accept", "application/json"); // Especificar el tipo de contenido como JSON
+    request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
+    request.setRawHeader("Content-Type", "application/json"); // Especificar el tipo de contenido como JSON
+
+    // Crear el cuerpo de la solicitud utilizando variables
+    QString atrPos = atr;   // ATR
+    QString uuidPos = uuid; // UUID
+
+    QString posData = SessionManager::instance().getPointOfSaleData();
+    QVariantList pointOfSaleDataList = parseJsonArray(posData);
+
+    if (!pointOfSaleDataList.isEmpty())
+    {
+        QVariantMap pointOfSaleData = pointOfSaleDataList.first().toMap();
+
+        if (pointOfSaleData.contains("id"))
+        {
+            posId = pointOfSaleData.value("id").toString();
+        }
+    }
+
+    QString pointOfSaleId = posId;
+
+    QString terminalKey = "001466";
+
+    QString jsonString = QString(
+                             "{"
+                             "\"atr\": \"%1\","
+                             "\"uuid\": \"%2\","
+                             "\"metadata\": {"
+                             "\"pointOfSaleId\": \"%3\","
+                             "\"terminalKey\": \"%4\""
+                             "}"
+                             "}")
+                             .arg(atrPos)
+                             .arg(uuidPos)
+                             .arg(pointOfSaleId)
+                             .arg(terminalKey);
+
+    QByteArray postData = jsonString.toUtf8();
+
+    qDebug() << "atr" << atrPos;
+    qDebug() << "uuid" << uuidPos;
+    qDebug() << "pointOfSaleId" << pointOfSaleId;
+    qDebug() << "terminalKey" << terminalKey;
+    qDebug() << "accessToken" << accessToken;
+
+    // Conectar la señal de respuesta usando la sintaxis antigua
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReply(QNetworkReply *)));
+
+    // Enviar la solicitud POST
+    manager->post(request, postData);
+}
+
+void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QByteArray responseData = reply->readAll();
+        qDebug() << "Primera respuesta:" << responseData;
+        cardData = QString(responseData);
+        QVariantMap cardDataMap = parseJsonObject(cardData);
+        if (cardDataMap.contains("nextStep"))
+        {
+            QVariantMap nextStep = cardDataMap["nextStep"].toMap();
+            if (nextStep.contains("step"))
+                QString stepNumber = nextStep["step"].toString();
+            if (nextStep.contains("desc"))
+            {
+                QString description = nextStep["desc"].toString();
+                qDebug() << "Descripción: " << description;
+            }
+            if (nextStep.contains("sessionId"))
+            {
+                QString sessionId = nextStep["sessionId"].toString();
+                sessionIdConfig = sessionId;
+            }
+
+            if (nextStep.contains("requestApdus"))
+            {
+                QVariantList requestApdus = nextStep["requestApdus"].toList();
+                std::vector<ParsedApduResponse> responseApdus; // Array to push every APDU response
+                foreach (QVariant var, requestApdus)
+                {
+                    QString requestApdu = var.toString();
+
+                    QByteArray commandTransform = requestApdu.toLatin1();
+                    char *command = commandTransform.data();
+
+                    uint8_t commandLength = static_cast<uint8_t>(sizeof(command));
+
+                    char response[256];
+                    ulong responseLength = 0;
+                    CARD_READER cardReaderType = READER_PICC;
+
+                    int status = _cReaderMifareSaleScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
+
+                    if (status != 0)
+                    {
+                        qDebug() << "Error en la transmisión:" << status;
+                        picc_close();
+                        emit progressMifareDoneError();
+                        return;
+                    }
+
+                    ApduResponse apduResponse;
+
+                    // Validar si la tarjeta es Mifare Plus
+                    bool mplus;
+                    if (atrNumberConfig.size() < 13 * 2)
+                    {
+                        mplus = true;
+                        apduResponse = _cReaderMifareSaleScreen.parseResponsePlus(response, responseLength, mplus);
+                    }
+
+                    // Validar si la tarjeta es Mifare Classic
+                    bool mclassic;
+                    if (atrNumberConfig.size() >= 13 * 2)
+                    {
+                        mclassic = true;
+                        apduResponse = _cReaderMifareSaleScreen.parseResponseClassic(response, responseLength, mclassic);
+                    }
+
+                    ParsedApduResponse parsedResponse = _cReaderMifareSaleScreen.convertToParsedApduResponse(apduResponse, requestApdu);
+
+                    responseApdus.push_back(parsedResponse);
+
+                    qDebug() << "apdu:" << parsedResponse.requestApdu;
+                    qDebug() << "isValid:" << parsedResponse.isValid;
+                    qDebug() << "response:" << parsedResponse.responseApdu;
+                }
+                // Enviar array con APDUs de respuesta
+                QString atrStepZero = atrNumberConfig;
+                QString uuidStepZero = uuidConfig;
+                readWriteCardStepZero(responseApdus);
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "Error en la solicitud:" << reply->errorString();
+        QByteArray errorData = reply->readAll();
+        qDebug() << "Detalle del error:" << errorData;
+
+        // Cerrar lectora
+        picc_close();
+
+        // Manejar Error
+        emit progressMifareDoneError();
+    }
+    // Liberar la memoria del objeto QNetworkReply
+    reply->deleteLater();
+}
+
+void MifareSaleProgress::readWriteCardStepZero(std::vector<ParsedApduResponse> responseApdus)
+{
+    // Crear el manager de la red
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+    // Obtener el accessToken actual
+    QString jwtToken = SessionManager::instance().getJwtToken();
+    QVariantMap jwtTokenJson = stringToJson(jwtToken);
+    QString accessToken = jwtTokenJson.value("access_token").toString();
+
+    // Crear la solicitud HTTP
+    QNetworkRequest request;
+    request.setUrl(QUrl("https://fleet.nebulae.com.co/api/external-network-gateway/rest/paymentMedium/applyPendingMods"));
+    request.setRawHeader("accept", "application/json"); // Especificar el tipo de contenido como JSON
+    request.setRawHeader("Authorization", "Bearer " + accessToken.toUtf8());
+    request.setRawHeader("Content-Type", "application/json"); // Especificar el tipo de contenido como JSON
+
+    // Crear el cuerpo de la solicitud utilizando variables
+    QString atrPos = atrNumberConfig; // ATR
+    QString uuidPos = uuidConfig.toUpper();
+
+    QString posData = SessionManager::instance().getPointOfSaleData();
+
+    // Verificar si existe la llave "products"
+    QVariantList pointOfSaleDataList = parseJsonArray(posData);
+
+    if (!pointOfSaleDataList.isEmpty())
+    {
+        QVariantMap pointOfSaleData = pointOfSaleDataList.first().toMap();
+
+        if (pointOfSaleData.contains("id"))
+        {
+            posId = pointOfSaleData.value("id").toString();
+        }
+    }
+
+    QString pointOfSaleId = posId;
+    QString terminalKey = "001466";
+    QString posSessionId = sessionIdConfig;
+    qDebug() << "size respondeApdu" << responseApdus.size();
+    QString responseApdusJson = generarResponseApdus(responseApdus);
+
+    QString jsonString = QString(
+                             "{"
+                             "\"atr\": \"%1\",\n"
+                             "\"uuid\": \"%2\",\n"
+                             "\"metadata\": {\n"
+                             "  \"pointOfSaleId\": \"%3\",\n"
+                             "  \"terminalKey\": \"%4\"\n"
+                             "},\n"
+                             "\"sessionId\": \"%5\",\n"
+                             "\"responseApdus\": [%6]\n"
+                             "}\n")
+                             .arg(atrPos)
+                             .arg(uuidPos)
+                             .arg(pointOfSaleId)
+                             .arg(terminalKey)
+                             .arg(posSessionId)
+                             .arg(responseApdusJson); // Llama a una función que genera el contenido de "responseApdus"
+
+    QByteArray postData = jsonString.toUtf8();
+
+    qDebug() << "jsonString Final" << jsonString;
+
+    // Conectar la señal de respuesta usando la sintaxis antigua
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReplyZero(QNetworkReply *)));
+
+    // Enviar la solicitud POST
+    manager->post(request, postData);
+}
+
+void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QByteArray responseData = reply->readAll();
+        qDebug() << "Respuesta:" << responseData;
+
+        cardDataSecond = QString(responseData);
+        QVariantMap cardDataMap = parseJsonObject(cardDataSecond);
+
+        if (cardDataMap.contains("nextStep"))
+        {
+            QVariantMap nextStep = cardDataMap["nextStep"].toMap();
+            QVariantMap paymentMedium = cardDataMap["paymentMedium"].toMap();
+            if (nextStep.size() > 0)
+            {
+                if (nextStep.contains("step"))
+                {
+                    QString step = nextStep["step"].toString();
+                    if (step.isNull())
+                    {
+                        QString error = nextStep["error"].toString();
+                        qDebug() << "error" << error;
+
+                        // Manejar Error
+                        emit progressMifareDoneError();
+                        picc_close();
+                    }
+                }
+                if (nextStep.contains("desc"))
+                {
+                    QString description = nextStep["desc"].toString();
+                    qDebug() << "Descripción: " << description;
+                }
+                if (nextStep.contains("sessionId"))
+                {
+                    QString sessionId = nextStep["sessionId"].toString();
+                    sessionIdConfig = sessionId;
+                }
+                if (nextStep.contains("requestApdus"))
+                {
+                    QVariantList requestApdus = nextStep["requestApdus"].toList();
+                    std::vector<ParsedApduResponse> responseApdus; // Array to push every APDU response
+                    foreach (QVariant var, requestApdus)
+                    {
+                        QString requestApdu = var.toString();
+
+                        QByteArray commandTransform = requestApdu.toLatin1();
+                        char *command = commandTransform.data();
+
+                        uint8_t commandLength = static_cast<uint8_t>(sizeof(command));
+
+                        char response[256];
+                        ulong responseLength = 0;
+                        CARD_READER cardReaderType = READER_PICC;
+
+                        int status = _cReaderMifareSaleScreen.customTransmit(cardReaderType, command, commandLength, response, &responseLength);
+
+                        if (status != 0)
+                        {
+                            qDebug() << "Error en la transmisión:" << status;
+
+                            // Cerrar lectora
+                            picc_close();
+
+                            // Manejar Error
+                            emit progressMifareDoneError();
+                            return;
+                        }
+
+                        ApduResponse apduResponse;
+
+                        // Validar si la tarjeta es Mifare Plus
+                        bool mplus;
+                        if (atrNumberConfig.size() < 13 * 2)
+                        {
+                            mplus = true;
+                            apduResponse = _cReaderMifareSaleScreen.parseResponsePlus(response, responseLength, mplus);
+                        }
+
+                        // Validar si la tarjeta es Mifare Classic
+                        bool mclassic;
+                        if (atrNumberConfig.size() >= 13 * 2)
+                        {
+                            mclassic = true;
+                            apduResponse = _cReaderMifareSaleScreen.parseResponseClassic(response, responseLength, mclassic);
+                        }
+
+                        ParsedApduResponse parsedResponse = _cReaderMifareSaleScreen.convertToParsedApduResponse(apduResponse, requestApdu);
+
+                        responseApdus.push_back(parsedResponse);
+
+                        qDebug() << "apdu:" << parsedResponse.requestApdu;
+                        qDebug() << "isValid:" << parsedResponse.isValid;
+                        qDebug() << "response:" << parsedResponse.responseApdu;
+                    }
+                    // Enviar array con APDUs de respuesta
+                    QString atrStepZero = atrNumberConfig;
+                    QString uuidStepZero = uuidConfig;
+                    readWriteCardStepZero(responseApdus);
+                }
+            }
+            else
+            {
+                qDebug() << "Lectura finalizada";
+
+                if (paymentMedium.size() > 0)
+                {
+                    if (paymentMedium.contains("id"))
+                    {
+                        payId = paymentMedium.value("id").toString();
+                    }
+                    endUserFullname = paymentMedium["endUserFullName"].toString();
+                    endUserDocument = paymentMedium["endUserDocument"].toString();
+                    endUserId = paymentMedium["endUserId"].toString();
+
+                    if (paymentMedium.contains("pockets"))
+                    {
+                        QVariantMap pockets = paymentMedium["pockets"].toMap();
+
+                        if (pockets.contains("REGULAR"))
+                        {
+                            QVariantMap regularPocket = pockets["REGULAR"].toMap();
+                            QString pocketType = regularPocket["type"].toString();
+                            balance = regularPocket["balance"].toInt();
+                            int balanceBk = regularPocket["balanceBk"].toInt();
+                            qint64 timestamp = regularPocket["timestamp"].toLongLong();
+                            qDebug() << "Saldo Actualizado: " << balance;
+                        }
+
+                        if (pockets.contains("FINANCIAL_ENTITY"))
+                        {
+                            QVariantMap financialEntityPocket = pockets["FINANCIAL_ENTITY"].toMap();
+                            QString financialType = financialEntityPocket["type"].toString();
+                            int financialBalance = financialEntityPocket["balance"].toInt();
+                            int financialBalanceBk = financialEntityPocket["balanceBk"].toInt();
+                            qint64 financialTimestamp = financialEntityPocket["timestamp"].toLongLong();
+                        }
+                    }
+
+                    qDebug() << "endUserFullname:" << endUserFullname;
+                    qDebug() << "endUserDocument: " << endUserDocument;
+                    qDebug() << "endUserId: " << endUserId;
+
+                    message = QString("Saldo Actualizado: %1\n"
+                                      "endUserFullname: %2\n"
+                                      "endUserDocument: %3\n"
+                                      "endUserId: %4")
+                                  .arg(balance)
+                                  .arg(endUserFullname)
+                                  .arg(endUserDocument)
+                                  .arg(endUserId);
+                    SessionManager::instance().setMessageToPrint(message);
+                }
+
+                picc_close();
+                runPrinter(message);
+                emit progressMifareDoneSuccess();
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "Error en la solicitud:" << reply->errorString();
+        QByteArray errorData = reply->readAll();
+        qDebug() << "Detalle del error:" << errorData;
+
+        // Cerrar lectora
+        picc_close();
+
+        // Manejgar error
+        emit progressMifareDoneError();
+    }
+    // Liberar la memoria del objeto QNetworkReply
+    reply->deleteLater();
+}
+
+// Función para generar el contenido de "responseApdus"
+QString MifareSaleProgress::generarResponseApdus(const std::vector<ParsedApduResponse> responseApdus)
+{
+    QStringList responseItems;
+
+    for (size_t i = 0; i < responseApdus.size(); i++)
+    {
+
+        // Construir el string para cada ParsedApduResponse
+        QString responseItem = QString("{ \"requestApdu\": \"%1\", \"isValid\": %2, \"responseApdu\": \"%3\" }")
+                                   .arg(responseApdus[i].requestApdu)
+                                   .arg(responseApdus[i].isValid ? "true" : "false")
+                                   .arg(responseApdus[i].responseApdu);
+
+        // Agregar el item a la lista
+        responseItems << responseItem;
+    }
+
+    // Unir todos los elementos en un solo string separado por comas
+    QString resultString = responseItems.join(",\n");
+
+    return resultString;
 }

@@ -22,7 +22,7 @@ static const uint qt_meta_data_ConfigScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      13,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -32,35 +32,12 @@ static const uint qt_meta_data_ConfigScreen[] = {
  // slots: signature, parameters, type, tag, flags
       14,   13,   13,   13, 0x0a,
       23,   13,   13,   13, 0x0a,
-      36,   13,   13,   13, 0x0a,
-      55,   49,   13,   13, 0x0a,
-      94,   49,   13,   13, 0x0a,
-     146,  137,   13,   13, 0x0a,
-     191,  177,   13,   13, 0x0a,
-     258,  246,   13,   13, 0x0a,
-     306,  295,  286,   13, 0x0a,
-     342,  295,  330,   13, 0x0a,
-     380,  295,  367,   13, 0x0a,
-     404,  177,   13,   13, 0x0a,
-     464,  177,  456,   13, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ConfigScreen[] = {
     "ConfigScreen\0\0runLed()\0turnOffLed()\0"
-    "piccReader()\0reply\0"
-    "handlePostNetworkReply(QNetworkReply*)\0"
-    "handlePostNetworkReplyZero(QNetworkReply*)\0"
-    "atr,uuid\0readWriteCard(QString,QString)\0"
-    "responseApdus\0"
-    "readWriteCardStepZero(std::vector<ParsedApduResponse>)\0"
-    "replyObject\0handleMappedReply(QObject*)\0"
-    "QVariant\0jsonString\0parseJsonValue(QString)\0"
-    "QVariantMap\0parseJsonObject(QString)\0"
-    "QVariantList\0parseJsonArray(QString)\0"
-    "printResponseApdus(std::vector<ParsedApduResponse>)\0"
-    "QString\0generarResponseApdus(std::vector<ParsedApduResponse>)\0"
 };
 
 void ConfigScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -71,24 +48,10 @@ void ConfigScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         switch (_id) {
         case 0: _t->runLed(); break;
         case 1: _t->turnOffLed(); break;
-        case 2: _t->piccReader(); break;
-        case 3: _t->handlePostNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 4: _t->handlePostNetworkReplyZero((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 5: _t->readWriteCard((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
-        case 6: _t->readWriteCardStepZero((*reinterpret_cast< std::vector<ParsedApduResponse>(*)>(_a[1]))); break;
-        case 7: _t->handleMappedReply((*reinterpret_cast< QObject*(*)>(_a[1]))); break;
-        case 8: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
-            if (_a[0]) *reinterpret_cast< QVariant*>(_a[0]) = _r; }  break;
-        case 9: { QVariantMap _r = _t->parseJsonObject((*reinterpret_cast< const QString(*)>(_a[1])));
-            if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
-        case 10: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
-            if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = _r; }  break;
-        case 11: _t->printResponseApdus((*reinterpret_cast< const std::vector<ParsedApduResponse>(*)>(_a[1]))); break;
-        case 12: { QString _r = _t->generarResponseApdus((*reinterpret_cast< const std::vector<ParsedApduResponse>(*)>(_a[1])));
-            if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
         default: ;
         }
     }
+    Q_UNUSED(_a);
 }
 
 const QMetaObjectExtraData ConfigScreen::staticMetaObjectExtraData = {
@@ -123,9 +86,9 @@ int ConfigScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 13)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 2;
     }
     return _id;
 }

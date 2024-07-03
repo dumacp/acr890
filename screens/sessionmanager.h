@@ -39,6 +39,9 @@ public:
     void setCurrentAccessToken(const QString &accessToken) { currentAccessToken = accessToken; }
     QString getCurrentAccessToken() const { return currentAccessToken; }
 
+    void setMessageToPrint(const QString &message) { messageToPrint = message; }
+    QString getMessageToPrint() const { return messageToPrint; }
+
 private:
     SessionManager() {}
     QString jwtToken;
@@ -50,6 +53,7 @@ private:
     QByteArray pointOfSaleData;
     QString currentAccessToken;
     QString currentPosId;
+    QString messageToPrint;
 
     // Disable copy and assignment
     SessionManager(const SessionManager &);

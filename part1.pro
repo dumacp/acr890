@@ -11,7 +11,9 @@ SOURCES   = mainwindow.cpp \
             screens/sale/animation/saleprogress.cpp \
             screens/sale/animation/mifaresaleprogress.cpp \
             screens/sale/error/saleerror.cpp \
+            screens/sale/error/mifaresaleerror.cpp \
             screens/sale/success/salesuccess.cpp \
+            screens/sale/success/mifaresalesuccess.cpp \
             smartCard/AcsException.cpp \
             smartCard/AcsHelper.cpp \
             smartCard/AcsKeypad.cpp \
@@ -33,7 +35,9 @@ HEADERS   = mainwindow.h \
             screens/sale/animation/saleprogress.h \
             screens/sale/animation/mifaresaleprogress.h \
             screens/sale/error/saleerror.h \
+            screens/sale/error/mifaresaleerror.h \
             screens/sale/success/salesuccess.h \
+            screens/sale/success/mifaresalesuccess.h \
             smartCard/AcsException.h \
             smartCard/AcsHelper.h \
             smartCard/AcsKeypad.h \

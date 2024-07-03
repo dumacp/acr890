@@ -34,9 +34,6 @@ SaleSuccess::SaleSuccess(QWidget *parent)
     QPushButton *button1 = new QPushButton("Imprimir copia", this);
     QPushButton *button2 = new QPushButton("Salir", this);
 
-    // Conectar la señal 'clicked()' del boton "Imprimir copia" al slot 'printPage' para imprimir una copía de la factura
-    // connect(button1, SIGNAL(clicked()), this, SLOT(printCopyPage()));
-
     // Conectar la señal 'clicked()' del boton salir al slot 'backToBilleteraScreenSlot' para regresar a RecargaBilleteraScreen
     connect(button2, SIGNAL(clicked()), this, SLOT(backToBilleteraScreenSlot()));
 
@@ -69,10 +66,6 @@ SaleSuccess::SaleSuccess(QWidget *parent)
     // Configura el layout principal como el diseño del widget
     setLayout(mainLayout);
 }
-
-/* void SaleSuccess::printCopyPage() {
-
-} */
 
 void SaleSuccess::backToBilleteraScreenSlot()
 {
