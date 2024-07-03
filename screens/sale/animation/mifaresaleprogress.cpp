@@ -597,11 +597,9 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
     completeTimerStarted = false;
     completeTimer->stop();
     animationStarted = true;
+
     timer->start(150); // Inicia la animación
     textLabel->setText("Aplicando Cambios ...");
-
-    /*  animationStarted = true;
-     timer->start(300); // Inicia la animación */
 
     // Crear el manager de la red
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
@@ -998,6 +996,12 @@ void MifareSaleProgress::handlePostNetworkReplyZero(QNetworkReply *reply)
 
                 picc_close();
                 runPrinter(message);
+                currentIndex = 0;
+                completeTimerStarted = false;
+                startWriting = false;
+                timer->stop();
+                completeTimer->stop();
+                animationStarted = false;
                 emit progressMifareDoneSuccess();
             }
         }

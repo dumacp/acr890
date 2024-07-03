@@ -347,6 +347,7 @@ void MainWindow::changeToMifareSaleScreen()
 void MainWindow::changeToMifareSaleSuccessScreen()
 {
     stackedWidget->setCurrentWidget(mifareSaleSuccess);
+    delete mifareSaleSuccess;
     qDebug() << "Cambiar a mifareSaleSuccess" << "todo ok";
 }
 
