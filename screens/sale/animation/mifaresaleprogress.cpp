@@ -129,6 +129,7 @@ void MifareSaleProgress::startAnimation()
     if (!animationStarted)
     {
         animationStarted = true;
+        startWriting = true;
         timer->start(300); // Inicia la animación
     }
 }
@@ -139,10 +140,11 @@ void MifareSaleProgress::updateIcon()
     iconLabel->setPixmap(icons[currentIndex]);
 
     // Verificar si se ha alcanzado el último icono (100%)
-    if (currentIndex == icons.size() - 1 && !completeTimerStarted)
+    if (currentIndex == icons.size() - 1 && !completeTimerStarted && startWriting)
     {
         completeTimerStarted = true;
-        completeTimer->start(500); // Inicializa temporizador de 3 segundos
+        startWriting = false;
+        completeTimer->start(600); // Inicializa temporizador de 3 segundos
     }
 }
 
@@ -219,6 +221,7 @@ void MifareSaleProgress::handleCompleteTimer()
 {
     currentIndex = 0;
     completeTimerStarted = false;
+    startWriting = false;
     timer->stop();
     completeTimer->stop();
     animationStarted = false;
@@ -592,9 +595,9 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
 {
     currentIndex = 0;
     completeTimerStarted = false;
-    timer->stop();
     completeTimer->stop();
-    animationStarted = false;
+    animationStarted = true;
+    timer->start(300); // Inicia la animación
     textLabel->setText("Aplicando Cambios");
 
     /*  animationStarted = true;
