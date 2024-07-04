@@ -77,8 +77,8 @@ public:
     QString getMessageToPrint() const { return messageToPrint; }
 
     // Get & Set ESSID to connect wifi
-    void setCurrentESSID(const QString &essid) { currentESSID = essid; }
-    QString setCurrentESSID() const { return currentESSID; }
+    void setCurrentSSID(const QString &ssid) { currentSSID = ssid; }
+    QString getCurrentSSID() const { return currentSSID; }
 
 private:
     SessionManager() {}
@@ -97,7 +97,7 @@ private:
     QString currentPosId;
     QString messageToPrint;
     QString mifareErrorMessage;
-    QString currentESSID;
+    QString currentSSID;
     bool executeMifareSale;
 
     // Disable copy and assignment

@@ -39,18 +39,18 @@ WifiConnectScreen::WifiConnectScreen(QWidget *parent)
     titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     titleLabel->setWordWrap(true); // Permitir el ajuste de línea automático si el texto es demasiado largo
 
-    // Inputs de texto
-
-    nameLine = new QLineEdit("EESID"); // Inicializa nameLine y asígnalo a la variable miembro
+    // Crear nameLine
+    nameLine = new QLineEdit("");
+    nameLine->setPlaceholderText("SSID");
     nameLine->setStyleSheet("border: 1px solid black; border-radius: 4px; font-size: 14pt;");
     nameLine->setFixedWidth(150);
     nameLine->setFixedHeight(40);
+    nameLine->setReadOnly(true);
     nameLine->setFocus();
 
     modifyingText = "";
 
-    addressText = new QLineEdit("Password"); // Inicializa addressText y asígnalo a la variable miembro
-
+    addressText = new QLineEdit(""); // Inicializa addressText y asígnalo a la variable miembro
     addressText->setPlaceholderText("Ingrese la contraseña de su red");
     addressText->setStyleSheet("border: 1px solid black; border-radius: 4px; font-size: 14pt;");
     addressText->setFixedWidth(150);
@@ -140,6 +140,15 @@ WifiConnectScreen::WifiConnectScreen(QWidget *parent)
     // Convertir la cadena JSON en un objeto JSON
     connect(nameLine, SIGNAL(textChanged(const QString &)), this, SLOT(getCurrentBalance(const QString &)));
 }
+
+void WifiConnectScreen::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event); // Llama al showEvent de la clase base si es necesario
+    QString ssid = SessionManager::instance().getCurrentSSID();
+    nameLine->setText(ssid);
+}
+
+// Obtener el SSID actual
 
 void WifiConnectScreen::handleSubmit()
 {
@@ -464,6 +473,9 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         // Eliminar sufijo COP y espacios en blanco addressText antes de mostrar el mensaje
         QString essid = nameLine->text();
 
+        QString ssid = SessionManager::instance().getCurrentSSID();
+        qDebug() << "sssid" << ssid;
+
         QString saleAmmount = addressText->text();
 
         // Eliminar el sufijo "COP"
@@ -479,7 +491,7 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         SessionManager::instance().setCurrentUnitPrice(removeCommasAndConvertToInt(saleAmmount));
 
         // Agregar texto adicional con información sobre la venta
-        QString additionalText = QString("ESSID: " + essid + "\n") +
+        QString additionalText = QString("SSID: " + ssid + "\n") +
                                  QString("Clave: ") + saleAmmount;
 
         responseDialog->setAdditionalText(additionalText);

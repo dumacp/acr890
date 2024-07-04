@@ -32,6 +32,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+    void showEvent(QShowEvent *event);
 
 signals:
     void showSaleScreen();

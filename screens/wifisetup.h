@@ -26,6 +26,10 @@ public:
     WifiScreen(QWidget *parent = 0);
     void rotateWindow();
     void displaySalesHistory(const QList<QString> &salesHistory);
+    ~WifiScreen();
+
+protected:
+    void showEvent(QShowEvent *event);
 
 signals:
     void changeToWifiConnect();
@@ -34,6 +38,8 @@ private slots:
     void handleCellDoubleClicked(int row, int column);
 
 private:
+    void scanResults();
+
     QLineEdit *nameLine;
     QLineEdit *addressText;
     QVBoxLayout *mainLayout;
@@ -41,6 +47,7 @@ private:
     QString jwtToken;
     QString modifyingText;
     QTableWidget *salesTable;
+    QStringList scanResultsList;
 };
 //! [class definition]
 
