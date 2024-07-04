@@ -463,9 +463,11 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         responseDialog->setResponseIcon(responseIcon);
 
         // Configurar el texto de respuesta en el diálogo
-        responseDialog->setResponseText("Confirmar venta", "yes");
+        responseDialog->setResponseText("Conectar Wifi", "yes");
 
         // Eliminar sufijo COP y espacios en blanco addressText antes de mostrar el mensaje
+        QString essid = nameLine->text();
+
         QString saleAmmount = addressText->text();
 
         // Eliminar el sufijo "COP"
@@ -481,10 +483,8 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         SessionManager::instance().setCurrentUnitPrice(removeCommasAndConvertToInt(saleAmmount));
 
         // Agregar texto adicional con información sobre la venta
-        QString additionalText = QString("Producto: Recarga Billetera\n") +
-                                 QString("Usuario: " + userName + "\n") +
-                                 QString("Documento: " + userDocument + "\n") +
-                                 QString("Valor: ") + saleAmmount + " COP";
+        QString additionalText = QString("ESSID: " + essid + "\n") +
+                                 QString("Clave: ") + saleAmmount;
 
         responseDialog->setAdditionalText(additionalText);
 
@@ -525,10 +525,6 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         {
             currentLineEdit->setCursorPosition(cursorPosition + 1);
         }
-        break;
-    case Qt::Key_Fn:
-        // Habilitar modo de entrada de letras cuando se presiona la tecla Fn
-        setNumericKeysToLetters(true);
         break;
     default:
         QWidget::keyPressEvent(event);

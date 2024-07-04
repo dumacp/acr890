@@ -18,7 +18,8 @@ LoginScreen::LoginScreen(QWidget *parent)
     : QWidget(parent)
 {
     /* nameLine = new QLineEdit("cajero.pos@nebulae.com.co"); */
-    nameLine = new QLineEdit("cajero@nebulae.com.co");
+    /* nameLine = new QLineEdit("cajero@nebulae.com.co"); */
+    nameLine = new QLineEdit("900242188");
 
     // Configura otras propiedades del QLineEdit si es necesario
     nameLine->setPlaceholderText("Ingrese su usuario"); // Texto de marcador de posición
@@ -33,7 +34,8 @@ LoginScreen::LoginScreen(QWidget *parent)
     QLabel *titleLabel = new QLabel("NebulaE");
     titleLabel->setFont(QFont("Arial", 16, QFont::Bold));
     /* addressText = new QLineEdit("cajero.pos@nebulae.com.co"); */
-    addressText = new QLineEdit("cajero@nebulae.com.co");
+    /* addressText = new QLineEdit("cajero@nebulae.com.co"); */
+    addressText = new QLineEdit("900242188");
     addressText->setEchoMode(QLineEdit::Password); // Establece el modo de eco como contraseña
     addressText->setStyleSheet("border: 1px solid black; border-radius: 4px;");
     addressText->setPlaceholderText("Ingrese su clave"); // Texto de marcador de posición
