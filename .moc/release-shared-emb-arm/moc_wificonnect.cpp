@@ -22,7 +22,7 @@ static const uint qt_meta_data_WifiConnectScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      14,   14, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -37,15 +37,14 @@ static const uint qt_meta_data_WifiConnectScreen[] = {
       51,   18,   18,   18, 0x0a,
       78,   18,   18,   18, 0x0a,
      111,  105,   18,   18, 0x0a,
-     146,   18,   18,   18, 0x0a,
-     187,  176,  167,   18, 0x0a,
-     224,  176,  211,   18, 0x0a,
-     265,  248,   18,   18, 0x0a,
-     295,   18,   18,   18, 0x0a,
-     331,  319,  315,   18, 0x0a,
-     381,  376,  368,   18, 0x0a,
-     410,   18,   18,   18, 0x0a,
-     440,   18,   18,   18, 0x0a,
+     166,  155,  146,   18, 0x0a,
+     203,  155,  190,   18, 0x0a,
+     244,  227,   18,   18, 0x0a,
+     274,   18,   18,   18, 0x0a,
+     310,  298,  294,   18, 0x0a,
+     360,  355,  347,   18, 0x0a,
+     389,   18,   18,   18, 0x0a,
+     419,   18,   18,   18, 0x0a,
 
        0        // eod
 };
@@ -55,10 +54,9 @@ static const char qt_meta_stringdata_WifiConnectScreen[] = {
     "handleSubmit()\0handleTextChanged(QString)\0"
     "getCurrentBalance(QString)\0reply\0"
     "handleNetworkReply(QNetworkReply*)\0"
-    "executeSale(QString)\0QVariant\0jsonString\0"
-    "parseJsonValue(QString)\0QVariantList\0"
-    "parseJsonArray(QString)\0balance,response\0"
-    "updateSaldoLabel(int,QString)\0"
+    "QVariant\0jsonString\0parseJsonValue(QString)\0"
+    "QVariantList\0parseJsonArray(QString)\0"
+    "balance,response\0updateSaldoLabel(int,QString)\0"
     "restoreSaldoLabel()\0int\0priceString\0"
     "removeCommasAndConvertToInt(QString)\0"
     "QString\0text\0extractNumericValue(QString)\0"
@@ -77,19 +75,18 @@ void WifiConnectScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         case 2: _t->handleTextChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 3: _t->getCurrentBalance((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 4: _t->handleNetworkReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
-        case 5: _t->executeSale((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 6: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 5: { QVariant _r = _t->parseJsonValue((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariant*>(_a[0]) = _r; }  break;
-        case 7: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 6: { QVariantList _r = _t->parseJsonArray((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantList*>(_a[0]) = _r; }  break;
-        case 8: _t->updateSaldoLabel((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
-        case 9: _t->restoreSaldoLabel(); break;
-        case 10: { int _r = _t->removeCommasAndConvertToInt((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 7: _t->updateSaldoLabel((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 8: _t->restoreSaldoLabel(); break;
+        case 9: { int _r = _t->removeCommasAndConvertToInt((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
-        case 11: { QString _r = _t->extractNumericValue((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 10: { QString _r = _t->extractNumericValue((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 12: _t->emitSaleSuccessToMainWindow(); break;
-        case 13: _t->emitSaleErrorToMainWindow(); break;
+        case 11: _t->emitSaleSuccessToMainWindow(); break;
+        case 12: _t->emitSaleErrorToMainWindow(); break;
         default: ;
         }
     }
@@ -127,9 +124,9 @@ int WifiConnectScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 14)
+        if (_id < 13)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 14;
+        _id -= 13;
     }
     return _id;
 }

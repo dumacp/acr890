@@ -421,10 +421,6 @@ QString WifiConnectScreen::extractNumericValue(const QString &text)
     return result;
 }
 
-void WifiConnectScreen::executeSale(const QString &)
-{
-}
-
 int WifiConnectScreen::removeCommasAndConvertToInt(const QString &priceString)
 {
     // Remover las comas del string

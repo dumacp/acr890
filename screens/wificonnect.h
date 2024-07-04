@@ -42,7 +42,6 @@ public slots:
     void handleTextChanged(const QString &);
     void getCurrentBalance(const QString &);
     void handleNetworkReply(QNetworkReply *reply);
-    void executeSale(const QString &);
     QVariant parseJsonValue(const QString &jsonString);
     QVariantList parseJsonArray(const QString &jsonString);
     void updateSaldoLabel(int balance, const QString &response);
