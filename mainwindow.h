@@ -66,6 +66,8 @@ private:
     void moveLeft();
     void moveRight();
 
+    QTimer *refreshTimer;
+
 private slots:
     void showLoginScreen();
     void showHomeScreen();
@@ -85,6 +87,9 @@ private slots:
     void changeToMifareSaleScreen();
     void setNotAuthenticated();
     void updateTime();
+    void refreshToken();
+    void handleTokenReply(QNetworkReply *reply);
+    QVariantMap stringToJson(const QString &jsonString);
 };
 
 #endif // MAINWINDOW_H

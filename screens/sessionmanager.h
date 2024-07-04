@@ -16,6 +16,14 @@ public:
     void setJwtToken(const QString &token) { jwtToken = token; }
     QString getJwtToken() const { return jwtToken; }
 
+    // Get & Set AccessToken
+    void setAccessToken(const QString &access) { accessToken = access; }
+    QString getAccessToken() const { return accessToken; }
+
+    // Get & Set RefreshToken
+    void setRefreshToken(const QString &refresh) { refreshToken = refresh; }
+    QString getRefreshToken() const { return refreshToken; }
+
     // Set Execute Mifare Sale
     void setExecuteMifareSale(const bool &executeMifareTypeSale) { executeMifareSale = executeMifareTypeSale; }
     bool getExecuteMifareSale() const { return executeMifareSale; }
@@ -71,6 +79,8 @@ public:
 private:
     SessionManager() {}
     QString jwtToken;
+    QString accessToken;
+    QString refreshToken;
     QString userId;
     QString userDocument;
     QString mifareSaleATR;

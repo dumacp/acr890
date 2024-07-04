@@ -19,10 +19,15 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      currentIndex(0)
+      currentIndex(0),
+      refreshTimer(new QTimer(this))
 {
     // Inicializa la variable de autenticación en false
     isAuthenticated = false;
+
+    // Configurar el temporizador para que se dispare cada 15 minutos (900 segundos) - refreshToken
+    connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshToken()));
+    refreshTimer->start(900 * 1000); // 900 segundos en milisegundos
 
     // Configurar el color de fondo
     this->setStyleSheet("background-color: white;");
@@ -258,6 +263,98 @@ MainWindow::~MainWindow()
     delete mifareSaleError;
 }
 
+void MainWindow::refreshToken()
+{
+
+    // Obtener el refreshToken del singleton
+    QString refreshToken = SessionManager::instance().getRefreshToken();
+
+    // Crear la solicitud de red para refrescar el token
+    QNetworkRequest request(QUrl("https://fleet.nebulae.com.co/auth/realms/FLEET/protocol/openid-connect/token"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    request.setRawHeader("Cookie", "KEYCLOAK_LOCALE=es_CO; INGRESSCOOKIE=1718115185.52.580.357024|4fe595e6a021e9a92488ba8bb40d9f57");
+
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+    connect(networkManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handleTokenReply(QNetworkReply *)));
+
+    // Crear los datos para la solicitud
+    QByteArray data;
+    data.append("grant_type=refresh_token");
+    data.append("&scope=openid");
+    data.append("&refresh_token=" + refreshToken);
+    data.append("&client_id=emi");
+
+    // Enviar la solicitud de red
+    networkManager->post(request, data);
+}
+
+void MainWindow::handleTokenReply(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QByteArray responseData = reply->readAll();
+
+        // Parsear la respuesta JSON para obtener el nuevo access_token
+        QString jwtToken = responseData;
+
+        // Enviar el jwtToken al singleton
+        SessionManager::instance().setJwtToken(jwtToken);
+
+        // Convertir jwtToken a un objeto JSON utilizando stringToJson
+        QVariantMap jwtTokenJson = stringToJson(jwtToken);
+        QString accessToken = jwtTokenJson.value("access_token").toString();
+        QString refreshToken = jwtTokenJson.value("refresh_token").toString();
+
+        // Enviar el accessToken al singleton
+        SessionManager::instance().setAccessToken(accessToken);
+
+        // Enviar el refreshToken al singleton
+        SessionManager::instance().setRefreshToken(refreshToken);
+    }
+    else
+    {
+        qDebug() << "Error al refrescar el token:" << reply->errorString();
+    }
+    reply->deleteLater();
+}
+
+QVariantMap MainWindow::stringToJson(const QString &jsonString)
+{
+    QVariantMap jsonMap;
+
+    // Remover los primeros y últimos caracteres, que son '{' y '}'
+    QString cleanedString = jsonString.mid(1, jsonString.size() - 2);
+
+    // Separa la cadena en pares de clave-valor utilizando el delimitador ","
+    QStringList keyValuePairs = cleanedString.split(",");
+
+    // Itera sobre los pares de clave-valor
+    foreach (const QString &pair, keyValuePairs)
+    {
+        // Separa cada par de clave-valor utilizando el delimitador ":"
+        QStringList keyValue = pair.split(":");
+
+        // Asegúrate de que haya un par de clave-valor válido
+        if (keyValue.size() == 2)
+        {
+            // Extrae la clave y el valor
+            QString key = keyValue[0].trimmed();
+            QString value = keyValue[1].trimmed();
+
+            // Quita las comillas alrededor de la clave y el valor
+            key.remove(0, 1);
+            key.remove(key.size() - 1, 1);
+            value.remove(0, 1);
+            value.remove(value.size() - 1, 1);
+
+            // Agrega el par de clave-valor al mapa JSON
+            jsonMap[key] = value;
+        }
+    }
+
+    return jsonMap;
+}
+
 void MainWindow::showLoginScreen()
 {
     if (loginScreen != NULL)
@@ -306,6 +403,7 @@ void MainWindow::setAuthenticated()
     stackedWidget->setCurrentWidget(productScreen);
     notificationBarContainer->setVisible(isAuthenticated);
     navigationBarContainer->setVisible(isAuthenticated);
+
     qDebug() << "Recibiendo desde loginscreen" << "todo ok";
 }
 

@@ -162,6 +162,13 @@ void LoginScreen::handleNetworkReply()
             // Convertir jwtToken a un objeto JSON utilizando stringToJson
             QVariantMap jwtTokenJson = stringToJson(jwtToken);
             QString accessToken = jwtTokenJson.value("access_token").toString();
+            QString refreshToken = jwtTokenJson.value("refresh_token").toString();
+
+            // Enviar el accessToken al singleton
+            SessionManager::instance().setAccessToken(accessToken);
+
+            // Enviar el refreshToken al singleton
+            SessionManager::instance().setRefreshToken(refreshToken);
 
             // Crear la URL para consulta get pointOfSale
             QString url = QString("https://fleet.nebulae.com.co/api/external-network-gateway/rest/pointOfSale");

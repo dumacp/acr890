@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      18,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -48,6 +48,9 @@ static const uint qt_meta_data_MainWindow[] = {
      380,   11,   11,   11, 0x08,
      407,   11,   11,   11, 0x08,
      429,   11,   11,   11, 0x08,
+     442,   11,   11,   11, 0x08,
+     463,  457,   11,   11, 0x08,
+     519,  508,  496,   11, 0x08,
 
        0        // eod
 };
@@ -67,6 +70,9 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "setAuthenticated()\0changeToSaleScreen()\0"
     "changeToMifareSaleScreen()\0"
     "setNotAuthenticated()\0updateTime()\0"
+    "refreshToken()\0reply\0"
+    "handleTokenReply(QNetworkReply*)\0"
+    "QVariantMap\0jsonString\0stringToJson(QString)\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -93,10 +99,13 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 15: _t->changeToMifareSaleScreen(); break;
         case 16: _t->setNotAuthenticated(); break;
         case 17: _t->updateTime(); break;
+        case 18: _t->refreshToken(); break;
+        case 19: _t->handleTokenReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
+        case 20: { QVariantMap _r = _t->stringToJson((*reinterpret_cast< const QString(*)>(_a[1])));
+            if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObjectExtraData MainWindow::staticMetaObjectExtraData = {
@@ -131,9 +140,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 18)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 18;
+        _id -= 21;
     }
     return _id;
 }
