@@ -1,14 +1,14 @@
 /****************************************************************************
-** Meta object code from reading C++ file 'configscreen.h'
+** Meta object code from reading C++ file 'wifisetup.h'
 **
 ** Created by: The Qt Meta Object Compiler version 63 (Qt 4.8.5)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../../screens/configscreen.h"
+#include "../../screens/wifisetup.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#error "The header file 'configscreen.h' doesn't include <QObject>."
+#error "The header file 'wifisetup.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 63
 #error "This file was generated using the moc from 4.8.5. It"
 #error "cannot be used with the include files from this version of Qt."
@@ -16,13 +16,13 @@
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
-static const uint qt_meta_data_ConfigScreen[] = {
+static const uint qt_meta_data_WifiScreen[] = {
 
  // content:
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -30,78 +30,73 @@ static const uint qt_meta_data_ConfigScreen[] = {
        1,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
-      14,   13,   13,   13, 0x05,
+      12,   11,   11,   11, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      34,   13,   13,   13, 0x0a,
-      43,   13,   13,   13, 0x0a,
-      56,   13,   13,   13, 0x0a,
+      45,   34,   11,   11, 0x08,
 
        0        // eod
 };
 
-static const char qt_meta_stringdata_ConfigScreen[] = {
-    "ConfigScreen\0\0changeToWifiSetup()\0"
-    "runLed()\0turnOffLed()\0goToWifiSettings()\0"
+static const char qt_meta_stringdata_WifiScreen[] = {
+    "WifiScreen\0\0changeToWifiConnect()\0"
+    "row,column\0handleCellDoubleClicked(int,int)\0"
 };
 
-void ConfigScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void WifiScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         Q_ASSERT(staticMetaObject.cast(_o));
-        ConfigScreen *_t = static_cast<ConfigScreen *>(_o);
+        WifiScreen *_t = static_cast<WifiScreen *>(_o);
         switch (_id) {
-        case 0: _t->changeToWifiSetup(); break;
-        case 1: _t->runLed(); break;
-        case 2: _t->turnOffLed(); break;
-        case 3: _t->goToWifiSettings(); break;
+        case 0: _t->changeToWifiConnect(); break;
+        case 1: _t->handleCellDoubleClicked((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
-const QMetaObjectExtraData ConfigScreen::staticMetaObjectExtraData = {
+const QMetaObjectExtraData WifiScreen::staticMetaObjectExtraData = {
     0,  qt_static_metacall 
 };
 
-const QMetaObject ConfigScreen::staticMetaObject = {
-    { &QWidget::staticMetaObject, qt_meta_stringdata_ConfigScreen,
-      qt_meta_data_ConfigScreen, &staticMetaObjectExtraData }
+const QMetaObject WifiScreen::staticMetaObject = {
+    { &QWidget::staticMetaObject, qt_meta_stringdata_WifiScreen,
+      qt_meta_data_WifiScreen, &staticMetaObjectExtraData }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
-const QMetaObject &ConfigScreen::getStaticMetaObject() { return staticMetaObject; }
+const QMetaObject &WifiScreen::getStaticMetaObject() { return staticMetaObject; }
 #endif //Q_NO_DATA_RELOCATION
 
-const QMetaObject *ConfigScreen::metaObject() const
+const QMetaObject *WifiScreen::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
 }
 
-void *ConfigScreen::qt_metacast(const char *_clname)
+void *WifiScreen::qt_metacast(const char *_clname)
 {
     if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_ConfigScreen))
-        return static_cast<void*>(const_cast< ConfigScreen*>(this));
+    if (!strcmp(_clname, qt_meta_stringdata_WifiScreen))
+        return static_cast<void*>(const_cast< WifiScreen*>(this));
     return QWidget::qt_metacast(_clname);
 }
 
-int ConfigScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int WifiScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 2;
     }
     return _id;
 }
 
 // SIGNAL 0
-void ConfigScreen::changeToWifiSetup()
+void WifiScreen::changeToWifiConnect()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, 0);
 }

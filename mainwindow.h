@@ -22,6 +22,8 @@
 #include "screens/sale/error/mifaresaleerror.h"
 #include "screens/historyscreen.h"
 #include "screens/configscreen.h"
+#include "screens/wifisetup.h"
+#include "screens/wificonnect.h"
 
 class MainWindow : public QMainWindow
 {
@@ -55,6 +57,8 @@ private:
     MifareSaleSuccess *mifareSaleSuccess;
     MifareSaleError *mifareSaleError;
     ConfigScreen *configScreen;
+    WifiScreen *wifiScreen;
+    WifiConnectScreen *wifiConnectScreen;
     HistoryScreen *historyScreen;
     bool isAuthenticated;
     QLabel *timeLabel;
@@ -90,6 +94,8 @@ private slots:
     void refreshToken();
     void handleTokenReply(QNetworkReply *reply);
     QVariantMap stringToJson(const QString &jsonString);
+    void changeToWifiScreen();
+    void changeToWifiConnectScreen();
 };
 
 #endif // MAINWINDOW_H

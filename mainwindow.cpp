@@ -72,6 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
     mifareSaleError = new MifareSaleError;
     historyScreen = new HistoryScreen;
     configScreen = new ConfigScreen;
+    wifiScreen = new WifiScreen;
+    wifiConnectScreen = new WifiConnectScreen;
 
     // Agregar las pantallas al arreglo - cambio de pantalla via keypad
     screens << homeScreen << productScreen << historyScreen << configScreen;
@@ -89,6 +91,8 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(saleError);
     stackedWidget->addWidget(historyScreen);
     stackedWidget->addWidget(configScreen);
+    stackedWidget->addWidget(wifiScreen);
+    stackedWidget->addWidget(wifiConnectScreen);
 
     // connect(button1, SIGNAL(clicked()), this, SLOT(showLoginScreen()));
     connect(button1, SIGNAL(clicked()), this, SLOT(showHomeScreen()));
@@ -140,6 +144,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Conectar la señal 'submitClickd()' de productscreen con el slot 'showRecargaMifareScreen()' de mainwindow
     connect(productScreen, SIGNAL(selectedProductMifare()), this, SLOT(showRecargaMifareScreen()));
+
+    // Conectar la señal 'changeToWifiSetup()' de configScreen con el slot 'changeToWifiScreen()' de mainwindow
+    connect(configScreen, SIGNAL(changeToWifiSetup()), this, SLOT(changeToWifiScreen()));
+
+    // Conectar la señal 'changeToWifiConnect()' de wifiScreen con el slot 'changeToWifiConnectScreen()' de mainwindow
+    connect(wifiScreen, SIGNAL(changeToWifiConnect()), this, SLOT(changeToWifiConnectScreen()));
 
     // Fullscreen
     setWindowState(windowState() ^ Qt::WindowFullScreen);
@@ -255,6 +265,8 @@ MainWindow::~MainWindow()
     delete historyScreen;
     delete stackedWidget;
     delete configScreen;
+    delete wifiScreen;
+    delete wifiConnectScreen;
     delete saleProgress;
     delete mifareSaleProgress;
     delete saleSuccess;
@@ -405,6 +417,18 @@ void MainWindow::setAuthenticated()
     navigationBarContainer->setVisible(isAuthenticated);
 
     qDebug() << "Recibiendo desde loginscreen" << "todo ok";
+}
+
+void MainWindow::changeToWifiScreen()
+{
+    if (wifiScreen != NULL)
+        stackedWidget->setCurrentWidget(wifiScreen);
+}
+
+void MainWindow::changeToWifiConnectScreen()
+{
+    if (wifiConnectScreen != NULL)
+        stackedWidget->setCurrentWidget(wifiConnectScreen);
 }
 
 void MainWindow::changeToSaleScreen()

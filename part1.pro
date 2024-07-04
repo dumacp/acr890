@@ -1,5 +1,7 @@
 SOURCES   = mainwindow.cpp \
             main.cpp \
+            screens/wifisetup.cpp \
+            screens/wificonnect.cpp \
             screens/loginscreen.cpp \
             screens/homescreen.cpp \
             screens/productscreen.cpp \
@@ -23,6 +25,8 @@ SOURCES   = mainwindow.cpp \
             
 
 HEADERS   = mainwindow.h \
+            screens/wifisetup.h \
+            screens/wificonnect.h \
             screens/loginscreen.h \
             screens/sessionmanager.h \
             screens/homescreen.h \

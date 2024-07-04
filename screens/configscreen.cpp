@@ -175,7 +175,11 @@ ConfigScreen::ConfigScreen(QWidget *parent)
     // Fullscreen
     setWindowState(windowState() ^ Qt::WindowFullScreen);
 
+    // Led tests
     connect(infoConfButton, SIGNAL(clicked()), this, SLOT(runLed()));
+
+    // Wifi Setup
+    connect(wifiConfButton, SIGNAL(clicked()), this, SLOT(goToWifiSettings()));
 }
 
 void ConfigScreen::runLed()
@@ -205,4 +209,9 @@ void ConfigScreen::turnOffLed()
         state.OnOffBlinkState = (enum led_blink_state)0;
         led_set_state((enum led_id)i, state);
     }
+}
+
+void ConfigScreen::goToWifiSettings()
+{
+    emit changeToWifiSetup();
 }

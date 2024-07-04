@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      21,   14, // methods
+      23,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -51,6 +51,8 @@ static const uint qt_meta_data_MainWindow[] = {
      442,   11,   11,   11, 0x08,
      463,  457,   11,   11, 0x08,
      519,  508,  496,   11, 0x08,
+     541,   11,   11,   11, 0x08,
+     562,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -73,6 +75,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "refreshToken()\0reply\0"
     "handleTokenReply(QNetworkReply*)\0"
     "QVariantMap\0jsonString\0stringToJson(QString)\0"
+    "changeToWifiScreen()\0changeToWifiConnectScreen()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -103,6 +106,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 19: _t->handleTokenReply((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
         case 20: { QVariantMap _r = _t->stringToJson((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QVariantMap*>(_a[0]) = _r; }  break;
+        case 21: _t->changeToWifiScreen(); break;
+        case 22: _t->changeToWifiConnectScreen(); break;
         default: ;
         }
     }
@@ -140,9 +145,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 21)
+        if (_id < 23)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 21;
+        _id -= 23;
     }
     return _id;
 }

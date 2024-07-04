@@ -40,9 +40,13 @@ public:
     ConfigScreen(QWidget *parent = 0);
     void rotateWindow();
 
+signals:
+    void changeToWifiSetup();
+
 public slots:
     void runLed();
     void turnOffLed(); // Nuevo slot para apagar el LED
+    void goToWifiSettings();
 };
 //! [class definition]
 

@@ -76,6 +76,10 @@ public:
     void setMessageToPrint(const QString &message) { messageToPrint = message; }
     QString getMessageToPrint() const { return messageToPrint; }
 
+    // Get & Set ESSID to connect wifi
+    void setCurrentESSID(const QString &essid) { currentESSID = essid; }
+    QString setCurrentESSID() const { return currentESSID; }
+
 private:
     SessionManager() {}
     QString jwtToken;
@@ -93,6 +97,7 @@ private:
     QString currentPosId;
     QString messageToPrint;
     QString mifareErrorMessage;
+    QString currentESSID;
     bool executeMifareSale;
 
     // Disable copy and assignment
