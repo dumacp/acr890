@@ -65,7 +65,7 @@ void SaleProgress::startAnimation()
     if (!animationStarted)
     {
         animationStarted = true;
-        timer->start(600); // Inicia la animación
+        timer->start(150); // Inicia la animación
     }
 }
 
@@ -78,7 +78,7 @@ void SaleProgress::updateIcon()
     if (currentIndex == icons.size() - 1 && !completeTimerStarted)
     {
         completeTimerStarted = true;
-        completeTimer->start(3000); // Inicializa temporizador de 3 segundos
+        completeTimer->start(400);
     }
 }
 
@@ -153,6 +153,13 @@ void SaleProgress::handleApiResponse(const QString &response)
 
 void SaleProgress::handleCompleteTimer()
 {
+
+    currentIndex = 0;
+    completeTimerStarted = false;
+    timer->stop();
+    completeTimer->stop();
+    animationStarted = false;
+
     // Obtener valores necesarios del Singleton SessionManager
     QString posData = SessionManager::instance().getPointOfSaleData();
     QString jwtToken = SessionManager::instance().getJwtToken();
@@ -319,6 +326,13 @@ void SaleProgress::handlePostNetworkReply(QNetworkReply *reply)
     else
     {
         QByteArray errorData = reply->readAll();
+
+        currentIndex = 0;
+        completeTimerStarted = false;
+        timer->stop();
+        completeTimer->stop();
+        animationStarted = false;
+
         emit progressDoneError();
     }
 
