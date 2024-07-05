@@ -36,10 +36,9 @@ signals:
 
 private slots:
     void handleCellDoubleClicked(int row, int column);
-
-private:
     void scanResults();
 
+private:
     QLineEdit *nameLine;
     QLineEdit *addressText;
     QVBoxLayout *mainLayout;

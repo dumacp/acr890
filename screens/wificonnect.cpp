@@ -17,7 +17,9 @@
 #include <QStringList>
 
 WifiConnectScreen::WifiConnectScreen(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      phonewordsMode(false), // Inicializa el modo en numérico
+      currentText("")
 {
     // Icono en la parte izquierda de la pantalla
     QLabel *iconLabel = new QLabel;
@@ -456,6 +458,23 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
     QString text = currentLineEdit->text();
     int cursorPosition = currentLineEdit->cursorPosition();
 
+    qDebug() << "EventKey" << event->key();
+
+    // Mapeo de teclas a phonewords
+    QMap<int, QString> keyMap;
+    keyMap[Qt::Key_1] = "1";
+    keyMap[Qt::Key_2] = "ABC2";
+    keyMap[Qt::Key_3] = "DEF3";
+    keyMap[Qt::Key_4] = "GHI4";
+    keyMap[Qt::Key_5] = "JKL5";
+    keyMap[Qt::Key_6] = "MNO6";
+    keyMap[Qt::Key_7] = "PQRS7";
+    keyMap[Qt::Key_8] = "TUV8";
+    keyMap[Qt::Key_9] = "WXYZ9";
+    keyMap[Qt::Key_0] = "0";
+    keyMap[Qt::Key_Asterisk] = "*";
+    keyMap[Qt::Key_NumberSign] = "#";
+
     switch (event->key())
     {
     case Qt::Key_Return:
@@ -506,7 +525,7 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
             que emite la señal 'showSaleScreen()' en MainWindow.
 
         */
-        connect(responseDialog, SIGNAL(saleSuccess()), this, SLOT(emitSaleSuccessToMainWindow()));
+        connect(responseDialog, SIGNAL(saleSuccess()), this, SLOT(updateWpaSupplicant()));
 
         // Mostrar el diálogo de respuesta del servidor
         responseDialog->exec();
@@ -516,7 +535,12 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         qDebug() << "Return key pressed ";
         break;
     }
+        /*     case Qt::Key_1:
+                phonewordsMode = !phonewordsMode; // Cambia el modo
+                return;
+                break; */
     case Qt::Key_F2:
+
         // Poner el foco en nameLine
         if (focusWidget() == nameLine)
             addressText->setFocus();
@@ -534,18 +558,72 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
             currentLineEdit->setCursorPosition(cursorPosition + 1);
         }
         break;
+    case Qt::Key_Control:
+        qDebug() << "Key control captured";
+        break;
     default:
         QWidget::keyPressEvent(event);
         break;
     }
+
+    /*    if (phonewordsMode && keyMap.contains(event->key()))
+       {
+           currentText += convertToPhoneword(event->key());
+       }
+       else
+       {
+           currentText += convertToNumeric(event->key());
+       }
+       addressText->setText(currentText); */
 }
 
-void WifiConnectScreen::emitSaleSuccessToMainWindow()
+QString WifiConnectScreen::convertToPhoneword(int key)
 {
-    qDebug() << "Widget Confirmación recarga billetera";
-    emit showSaleScreen();
+    QString letters = keyMap[key];
+    static QMap<int, int> keyCount;
+
+    if (!keyCount.contains(key))
+    {
+        keyCount[key] = 0;
+    }
+
+    int count = keyCount[key]++;
+    if (count >= letters.length())
+    {
+        keyCount[key] = 0;
+        count = 0;
+    }
+
+    return QString(letters[count]);
 }
 
-void WifiConnectScreen::emitSaleErrorToMainWindow()
+QString WifiConnectScreen::convertToNumeric(int key)
 {
+    return QString::number(key - Qt::Key_0); // Convierte la tecla en su valor numérico
+}
+
+void WifiConnectScreen::updateWpaSupplicant()
+{
+    // Modificar SSID
+    QString ssid = SessionManager::instance().getCurrentSSID();
+    QString commandSsid = QString("sed -i 's/ssid=.*/ssid=\\\"%1\\\"/g' /etc/wpa_supplicant.conf").arg(ssid);
+    QProcess process;
+    process.start("/bin/sh", QStringList() << "-c" << commandSsid);
+    process.waitForFinished();
+
+    // Modificar PASSWD
+    QString passwd = "nebulaE-piso3";
+    QString commandPasswd = QString("sed -i 's/psk=.*/psk=\\\"%1\\\"/g' /etc/wpa_supplicant.conf").arg(passwd);
+    process.start("/bin/sh", QStringList() << "-c" << commandPasswd);
+    process.waitForFinished();
+
+    // Levantar Wpa_Supplicant
+    process.start("/bin/sh /home/root/dev/script.sh");
+    process.waitForFinished();
+
+    process.start("/bin/sh /home/root/dev/script_dos.sh &");
+    process.waitForFinished();
+
+    QString output(process.readAllStandardOutput());
+    qDebug() << output;
 }

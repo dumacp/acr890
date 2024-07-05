@@ -49,8 +49,7 @@ public slots:
     void restoreSaldoLabel();
     int removeCommasAndConvertToInt(const QString &priceString);
     QString extractNumericValue(const QString &text);
-    void emitSaleSuccessToMainWindow();
-    void emitSaleErrorToMainWindow();
+    void updateWpaSupplicant();
 
 private:
     QLineEdit *nameLine;
@@ -70,6 +69,14 @@ private:
 
     QVariantMap stringToJson(const QString &jsonString);
     QVariantMap parseJsonObject(const QString &jsonString);
+
+    // Keypad handler
+    QString convertToPhoneword(int key);
+    QString convertToNumeric(int key);
+
+    QString currentText;
+    QMap<int, QString> keyMap;
+    bool phonewordsMode; // Bandera para el modo phonewords
 };
 //! [class definition]
 

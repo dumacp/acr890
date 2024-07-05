@@ -69,8 +69,8 @@ void WifiScreen::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event); // Llama al showEvent de la clase base si es necesario
 
-    // Aquí ejecuta la función scanResults
-    scanResults();
+    // Timer para retrasar la ejecución de scanResults
+    QTimer::singleShot(3000, this, SLOT(scanResults()));
 }
 
 // Mostrar listado de redes encontradas

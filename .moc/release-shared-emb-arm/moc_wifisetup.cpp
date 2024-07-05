@@ -22,7 +22,7 @@ static const uint qt_meta_data_WifiScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -34,6 +34,7 @@ static const uint qt_meta_data_WifiScreen[] = {
 
  // slots: signature, parameters, type, tag, flags
       45,   34,   11,   11, 0x08,
+      78,   11,   11,   11, 0x08,
 
        0        // eod
 };
@@ -41,6 +42,7 @@ static const uint qt_meta_data_WifiScreen[] = {
 static const char qt_meta_stringdata_WifiScreen[] = {
     "WifiScreen\0\0changeToWifiConnect()\0"
     "row,column\0handleCellDoubleClicked(int,int)\0"
+    "scanResults()\0"
 };
 
 void WifiScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -51,6 +53,7 @@ void WifiScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->changeToWifiConnect(); break;
         case 1: _t->handleCellDoubleClicked((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 2: _t->scanResults(); break;
         default: ;
         }
     }
@@ -88,9 +91,9 @@ int WifiScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     }
     return _id;
 }
