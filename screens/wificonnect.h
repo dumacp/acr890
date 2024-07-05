@@ -51,6 +51,9 @@ public slots:
     QString extractNumericValue(const QString &text);
     void updateWpaSupplicant();
 
+    void setPhonewordsMode(bool mode);
+    void handleKeyPress(int key);
+
 private:
     QLineEdit *nameLine;
     QLineEdit *addressText;
@@ -74,9 +77,9 @@ private:
     QString convertToPhoneword(int key);
     QString convertToNumeric(int key);
 
+    bool phonewordsMode; // Bandera para el modo phonewords
     QString currentText;
     QMap<int, QString> keyMap;
-    bool phonewordsMode; // Bandera para el modo phonewords
 };
 //! [class definition]
 

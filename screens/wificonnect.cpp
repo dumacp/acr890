@@ -21,6 +21,18 @@ WifiConnectScreen::WifiConnectScreen(QWidget *parent)
       phonewordsMode(false), // Inicializa el modo en numérico
       currentText("")
 {
+    // Inicializa el mapeo de teclas a phoneWords
+    keyMap[Qt::Key_1] = "1";
+    keyMap[Qt::Key_2] = "ABC2";
+    keyMap[Qt::Key_3] = "DEF3";
+    keyMap[Qt::Key_4] = "GHI4";
+    keyMap[Qt::Key_5] = "JKL5";
+    keyMap[Qt::Key_6] = "MNO6";
+    keyMap[Qt::Key_7] = "PQRS7";
+    keyMap[Qt::Key_8] = "TUV8";
+    keyMap[Qt::Key_9] = "WXYZ9";
+    keyMap[Qt::Key_0] = "0";
+
     // Icono en la parte izquierda de la pantalla
     QLabel *iconLabel = new QLabel;
     QPixmap iconPixmap(":/assets/icons/config/interface-essential-wifi-feed.png");
@@ -458,22 +470,20 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
     QString text = currentLineEdit->text();
     int cursorPosition = currentLineEdit->cursorPosition();
 
-    qDebug() << "EventKey" << event->key();
+    int key = event->key();
 
-    // Mapeo de teclas a phonewords
-    QMap<int, QString> keyMap;
-    keyMap[Qt::Key_1] = "1";
-    keyMap[Qt::Key_2] = "ABC2";
-    keyMap[Qt::Key_3] = "DEF3";
-    keyMap[Qt::Key_4] = "GHI4";
-    keyMap[Qt::Key_5] = "JKL5";
-    keyMap[Qt::Key_6] = "MNO6";
-    keyMap[Qt::Key_7] = "PQRS7";
-    keyMap[Qt::Key_8] = "TUV8";
-    keyMap[Qt::Key_9] = "WXYZ9";
-    keyMap[Qt::Key_0] = "0";
-    keyMap[Qt::Key_Asterisk] = "*";
-    keyMap[Qt::Key_NumberSign] = "#";
+    qDebug() << "The key" << key;
+    qDebug() << "text" << text;
+
+    if (phonewordsMode && keyMap.contains(key))
+    {
+        currentText += convertToPhoneword(key);
+    }
+    else
+    {
+        currentText += convertToNumeric(key);
+    }
+    qDebug() << "currentText" << currentText;
 
     switch (event->key())
     {
@@ -535,12 +545,10 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         qDebug() << "Return key pressed ";
         break;
     }
-        /*     case Qt::Key_1:
-                phonewordsMode = !phonewordsMode; // Cambia el modo
-                return;
-                break; */
+    case Qt::Key_Control:
+        phonewordsMode = !phonewordsMode; // Cambia el modo
+        break;
     case Qt::Key_F2:
-
         // Poner el foco en nameLine
         if (focusWidget() == nameLine)
             addressText->setFocus();
@@ -558,23 +566,22 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
             currentLineEdit->setCursorPosition(cursorPosition + 1);
         }
         break;
-    case Qt::Key_Control:
-        qDebug() << "Key control captured";
-        break;
     default:
         QWidget::keyPressEvent(event);
         break;
     }
+}
 
-    /*    if (phonewordsMode && keyMap.contains(event->key()))
-       {
-           currentText += convertToPhoneword(event->key());
-       }
-       else
-       {
-           currentText += convertToNumeric(event->key());
-       }
-       addressText->setText(currentText); */
+void WifiConnectScreen::handleKeyPress(int key)
+{
+    if (phonewordsMode && keyMap.contains(key))
+    {
+        currentText += convertToPhoneword(key);
+    }
+    else
+    {
+        currentText += convertToNumeric(key);
+    }
 }
 
 QString WifiConnectScreen::convertToPhoneword(int key)
@@ -599,9 +606,13 @@ QString WifiConnectScreen::convertToPhoneword(int key)
 
 QString WifiConnectScreen::convertToNumeric(int key)
 {
-    return QString::number(key - Qt::Key_0); // Convierte la tecla en su valor numérico
+    return QString::number(key - Qt::Key_0);
 }
 
+void WifiConnectScreen::setPhonewordsMode(bool mode)
+{
+    phonewordsMode = mode;
+}
 void WifiConnectScreen::updateWpaSupplicant()
 {
     // Modificar SSID

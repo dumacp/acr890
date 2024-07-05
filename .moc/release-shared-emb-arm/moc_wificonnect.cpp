@@ -22,7 +22,7 @@ static const uint qt_meta_data_WifiConnectScreen[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      12,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -44,6 +44,8 @@ static const uint qt_meta_data_WifiConnectScreen[] = {
      310,  298,  294,   18, 0x0a,
      360,  355,  347,   18, 0x0a,
      389,   18,   18,   18, 0x0a,
+     416,  411,   18,   18, 0x0a,
+     444,  440,   18,   18, 0x0a,
 
        0        // eod
 };
@@ -59,7 +61,9 @@ static const char qt_meta_stringdata_WifiConnectScreen[] = {
     "restoreSaldoLabel()\0int\0priceString\0"
     "removeCommasAndConvertToInt(QString)\0"
     "QString\0text\0extractNumericValue(QString)\0"
-    "updateWpaSupplicant()\0"
+    "updateWpaSupplicant()\0mode\0"
+    "setPhonewordsMode(bool)\0key\0"
+    "handleKeyPress(int)\0"
 };
 
 void WifiConnectScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -84,6 +88,8 @@ void WifiConnectScreen::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         case 10: { QString _r = _t->extractNumericValue((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
         case 11: _t->updateWpaSupplicant(); break;
+        case 12: _t->setPhonewordsMode((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 13: _t->handleKeyPress((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -121,9 +127,9 @@ int WifiConnectScreen::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 14;
     }
     return _id;
 }
