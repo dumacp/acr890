@@ -251,6 +251,8 @@ void SaleProgress::handleCompleteTimer()
     QString routeCode = "";
     QString routeName = "";
     QString pointOfSaleId = posId;
+
+    // Hardcoded serial number - terminalKey
     QString terminalKey = "001466";
     QString externalSystemRefId = "";
     double longitude = -75.593601;
@@ -302,22 +304,6 @@ void SaleProgress::handleCompleteTimer()
 
     QByteArray postData = jsonString.toUtf8();
 
-    qDebug() << "unitPrice" << unitPrice;
-    qDebug() << "endUserId" << endUserId;
-    qDebug() << "productId" << productId;
-    qDebug() << "qty" << qty;
-    qDebug() << "unitPrice" << unitPrice;
-    qDebug() << "paymentMediumId" << paymentMediumId;
-    qDebug() << "document" << document;
-    qDebug() << "routeName" << routeName;
-    qDebug() << "pointOfSaleId" << pointOfSaleId;
-    qDebug() << "currentUnitPrice" << currentUnitPrice;
-    qDebug() << "terminalKey" << terminalKey;
-    qDebug() << "externalSystemRefId" << externalSystemRefId;
-    qDebug() << "externalSystemRefId" << externalSystemRefId;
-    qDebug() << "longitude" << longitude;
-    qDebug() << "latitude" << latitude;
-    qDebug() << "postData" << postData;
     // Enviar la solicitud POST
     manager->post(request, postData);
 }
@@ -327,15 +313,12 @@ void SaleProgress::handlePostNetworkReply(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError)
     {
         QByteArray responseData = reply->readAll();
-        qDebug() << "Response:" << responseData;
         emit progressDoneSuccess();
-        //runPrinter(responseData);
+        // runPrinter(responseData);
     }
     else
     {
-        qDebug() << "Error en la solicitud:" << reply->errorString();
         QByteArray errorData = reply->readAll();
-        qDebug() << "Detalle del error:" << errorData;
         emit progressDoneError();
     }
 

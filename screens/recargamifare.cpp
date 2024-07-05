@@ -321,6 +321,7 @@ void RecargaMifareScreen::readWriteCard(const QString &atr, const QString &uuid)
 
     QString pointOfSaleId = posId;
 
+    // Hardcoded serial number - terminalKey
     QString terminalKey = "001466";
 
     QString jsonString = QString(
@@ -389,6 +390,8 @@ void RecargaMifareScreen::readWriteCardStepZero(std::vector<ParsedApduResponse> 
     }
 
     QString pointOfSaleId = posId;
+
+    // Hardcoded serial number - terminalKey
     QString terminalKey = "001466";
     QString posSessionId = sessionIdConfig;
     qDebug() << "size respondeApdu" << responseApdus.size();

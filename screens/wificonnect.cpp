@@ -493,7 +493,7 @@ void WifiConnectScreen::keyPressEvent(QKeyEvent *event)
         QString essid = nameLine->text();
 
         QString ssid = SessionManager::instance().getCurrentSSID();
-        qDebug() << "sssid" << ssid;
+        qDebug() << "ssid" << ssid;
 
         QString saleAmmount = addressText->text();
 
@@ -612,7 +612,7 @@ void WifiConnectScreen::updateWpaSupplicant()
     process.waitForFinished();
 
     // Modificar PASSWD
-    QString passwd = "nebulaE-piso3";
+    QString passwd = "Transmetro464539";
     QString commandPasswd = QString("sed -i 's/psk=.*/psk=\\\"%1\\\"/g' /etc/wpa_supplicant.conf").arg(passwd);
     process.start("/bin/sh", QStringList() << "-c" << commandPasswd);
     process.waitForFinished();

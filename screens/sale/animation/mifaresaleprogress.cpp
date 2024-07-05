@@ -278,6 +278,8 @@ void MifareSaleProgress::handleCompleteTimer()
         int qty = 1;
         int unitPrice = SessionManager::instance().getCurrentMifareUnitPrice();
         QString paymentMediumId = SessionManager::instance().getPaymentMediumId();
+
+        // Hardcoded serial number - terminalKey
         QString terminalKey = "001466";
         QString externalSystemRefId = "";
         double longitude = -75.593601;
@@ -698,6 +700,7 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
 
     QString pointOfSaleId = posId;
 
+    // Hardcoded serial number - terminalKey
     QString terminalKey = "001466";
 
     QString jsonString = QString(
@@ -716,12 +719,6 @@ void MifareSaleProgress::readWriteCard(const QString &atr, const QString &uuid)
 
     QByteArray postData = jsonString.toUtf8();
 
-    qDebug() << "atr" << atrPos;
-    qDebug() << "uuid" << uuidPos;
-    qDebug() << "pointOfSaleId" << pointOfSaleId;
-    qDebug() << "terminalKey" << terminalKey;
-    qDebug() << "accessToken" << accessToken;
-
     // Conectar la señal de respuesta usando la sintaxis antigua
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(handlePostNetworkReply(QNetworkReply *)));
 
@@ -734,7 +731,6 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError)
     {
         QByteArray responseData = reply->readAll();
-        qDebug() << "Primera respuesta:" << responseData;
         cardData = QString(responseData);
         QVariantMap cardDataMap = parseJsonObject(cardData);
         if (cardDataMap.contains("nextStep"))
@@ -745,7 +741,6 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
             if (nextStep.contains("desc"))
             {
                 QString description = nextStep["desc"].toString();
-                qDebug() << "Descripción: " << description;
             }
             if (nextStep.contains("sessionId"))
             {
@@ -774,7 +769,6 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
 
                     if (status != 0)
                     {
-                        qDebug() << "Error en la transmisión:" << status;
                         picc_close();
 
                         currentIndex = 0;
@@ -811,10 +805,6 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
                     ParsedApduResponse parsedResponse = _cReaderMifareSaleScreen.convertToParsedApduResponse(apduResponse, requestApdu);
 
                     responseApdus.push_back(parsedResponse);
-
-                    qDebug() << "apdu:" << parsedResponse.requestApdu;
-                    qDebug() << "isValid:" << parsedResponse.isValid;
-                    qDebug() << "response:" << parsedResponse.responseApdu;
                 }
                 // Enviar array con APDUs de respuesta
                 QString atrStepZero = atrNumberConfig;
@@ -825,9 +815,7 @@ void MifareSaleProgress::handlePostNetworkReply(QNetworkReply *reply)
     }
     else
     {
-        qDebug() << "Error en la solicitud:" << reply->errorString();
         QByteArray errorData = reply->readAll();
-        qDebug() << "Detalle del error:" << errorData;
 
         // Cerrar lectora
         picc_close();
