@@ -617,22 +617,22 @@ void WifiConnectScreen::updateWpaSupplicant()
 {
     // Modificar SSID
     QString ssid = SessionManager::instance().getCurrentSSID();
-    QString commandSsid = QString("sed -i 's/ssid=.*/ssid=\\\"%1\\\"/g' /etc/wpa_supplicant.conf").arg(ssid);
+    QString commandSsid = QString("sed -i 's/ssid=.*/ssid=\\\"%1\\\"/g' /media/mmcblk0p1/wpa_supplicant.conf").arg(ssid);
     QProcess process;
     process.start("/bin/sh", QStringList() << "-c" << commandSsid);
     process.waitForFinished();
 
     // Modificar PASSWD
     QString passwd = "Transmetro464539";
-    QString commandPasswd = QString("sed -i 's/psk=.*/psk=\\\"%1\\\"/g' /etc/wpa_supplicant.conf").arg(passwd);
+    QString commandPasswd = QString("sed -i 's/psk=.*/psk=\\\"%1\\\"/g' /media/mmcblk0p1/wpa_supplicant.conf").arg(passwd);
     process.start("/bin/sh", QStringList() << "-c" << commandPasswd);
     process.waitForFinished();
 
     // Levantar Wpa_Supplicant
-    process.start("/bin/sh /home/root/dev/script.sh");
+    process.start("/bin/sh /media/mmcblk0p1/script.sh");
     process.waitForFinished();
 
-    process.start("/bin/sh /home/root/dev/script_dos.sh &");
+    process.start("/bin/sh /media/mmcblk0p1/script_dos.sh &");
     process.waitForFinished();
 
     QString output(process.readAllStandardOutput());
